@@ -57,10 +57,8 @@ public class DonatorController {
     public void createDonator(@RequestBody Donator c){
         donatorService.saveDonator(c);
     }
-
-//    @PostMapping("/donator/delete")
-//    public void deleteDonator(@RequestBody Donator c){
-//        c = donatorService.findById(Math.toIntExact(c.getId()));
-//        donatorService.specialDeleteDonator(c);
-//    }
+    @PostMapping("/donator/delete")
+    public void deleteDonator(@RequestBody Donator c){
+        donatorService.specialDeleteDonator(c);
+    }
 }

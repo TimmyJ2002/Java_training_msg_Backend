@@ -15,14 +15,18 @@ public class UserDTO {
     private String lastName;
     private String email;
     private String mobileNumber;
+    private String[] roles;
 
 
 
-    public UserDTO( String username, String firstName, String lastName, String email, String mobileNumber) {
+
+
+    public UserDTO( String username, String firstName, String lastName, String email, String mobileNumber, String[] roles) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.mobileNumber = mobileNumber;
+        this.roles = roles;
     }
 
     public UserDTO() {
@@ -59,5 +63,15 @@ public class UserDTO {
     public void setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
     }
+
+    public String[] getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String[] roles) {
+        this.roles = roles;
+    }
+
+
 
 }
