@@ -34,9 +34,9 @@ public class CampaignController {
 
     @PostMapping("/campaign/create")
     @ResponseBody
-    public ResponseEntity<?> createCampaign(@RequestBody Campaign campaign) {
+    public ResponseEntity<?> createCampaign(@RequestBody CampaignDto campaign) {
         try {
-            Campaign createdCampaign = campaignService.create(campaign);
+            Campaign createdCampaign = campaignService.create(campaignConverter.dtoToCampaign(campaign));
             return new ResponseEntity<>(createdCampaign, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Campaign name already exists.", HttpStatus.BAD_REQUEST);
@@ -45,9 +45,9 @@ public class CampaignController {
 
     @PostMapping("/campaign/update/{id}")
     @ResponseBody
-    public ResponseEntity<?> updateCampaign(@PathVariable Long id, @RequestBody Campaign updateCampaign) {
+    public ResponseEntity<?> updateCampaign(@PathVariable Long id, @RequestBody CampaignDto updateCampaign) {
         try {
-            Campaign updatedCampaign = campaignService.update(id, updateCampaign);
+            Campaign updatedCampaign = campaignService.update(id, campaignConverter.dtoToCampaign(updateCampaign));
             return new ResponseEntity<>(updatedCampaign, HttpStatus.OK);
         }
         catch (IllegalArgumentException e) {
@@ -56,7 +56,7 @@ public class CampaignController {
     }
 
     @DeleteMapping("/campaign/delete/{id}")
-    public void deleteCampaign(@PathVariable Long id, @RequestBody Campaign campaign) {
-        campaignService.delete(id, campaign);
+    public void deleteCampaign(@PathVariable Long id, @RequestBody CampaignDto campaign) {
+        campaignService.delete(id, campaignConverter.dtoToCampaign(campaign));
     }
 }
