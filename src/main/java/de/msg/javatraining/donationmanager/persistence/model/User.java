@@ -41,7 +41,7 @@ public class User {
 	@Column(name="mobilenumber")
 	private String mobileNumber;
 
-	@Column(name="isactive")
+			@Column(name="isactive")
 	private boolean isActive;
 
 	@Column(name="logincount")
@@ -169,7 +169,7 @@ public class User {
 	public void setMobileNumber(String mobileNumber) {
 		this.mobileNumber = mobileNumber;
 	}
-	public boolean isActive() {
+	public boolean getIsActive() {
 		return isActive;
 	}
 	public void setActive(boolean active) {
