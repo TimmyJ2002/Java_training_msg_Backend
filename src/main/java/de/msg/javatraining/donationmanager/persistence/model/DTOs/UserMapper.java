@@ -41,14 +41,26 @@ public class UserMapper {
         userWithIdDTO.setLoginCount(user.getLoginCount());//loginCount
         userWithIdDTO.setRoles(user.getRoles());// List<roles>
         userWithIdDTO.setActive(user.getIsActive());//isActive
+
         return userWithIdDTO;
     }
 
-//List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-//        .collect(Collectors.toList());
-//    donators.stream()
-//            .map(donatorMapper::donatorToDto)
-//                .collect(Collectors.toList());
+    public static User userWithIdDTOToUser(UserWithIdDTO userWithIdDTO) {
+        User user = new User();
+        user.setId(userWithIdDTO.getId());
+        user.setUsername(userWithIdDTO.getUsername());
+
+        user.setFirstName(userWithIdDTO.getFirstName());
+        user.setLastName(userWithIdDTO.getLastName());
+        user.setEmail(userWithIdDTO.getEmail());
+        user.setMobileNumber(userWithIdDTO.getMobileNumber());
+        user.setLoginCount(userWithIdDTO.getLoginCount());
+        user.setRoles(userWithIdDTO.getRoles());
+        user.setActive(userWithIdDTO.isActive());
+
+
+        return user;
+    }
 
 
 }
