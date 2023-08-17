@@ -41,26 +41,26 @@ public class DonatorController {
                 .map(donatorMapper::donatorToDto)
                 .collect(Collectors.toList());
     }
-//    @GetMapping("/donator/edit/{id}")
-//    public Donator findbyId(@PathVariable  int id) {
-//        return donatorService.findById(id);
-//    }
-
-
+    @GetMapping("/donator/edit/{id}")
+    public DonatorDTO findbyId(@PathVariable  long id) {
+        return donatorMapper.donatorToDto(donatorService.findById(id));
+    }
 
     @PostMapping("/donator/edit/{id}")
-    public void editDonator(@PathVariable  int id, @RequestBody Donator c){
-        donatorService.editDonator(id,c);
+    public void editDonator(@PathVariable  int id, @RequestBody DonatorDTO c){
+        donatorService.editDonator(id,donatorMapper.dtoToDonator(c));
     }
 
     @PostMapping("/donator/create")
-    public void createDonator(@RequestBody Donator c){
-        donatorService.saveDonator(c);
+    public void createDonator(@RequestBody DonatorDTO c){
+        donatorService.saveDonator(donatorMapper.dtoToDonator(c));
     }
 
-//    @PostMapping("/donator/delete")
-//    public void deleteDonator(@RequestBody Donator c){
-//        c = donatorService.findById(Math.toIntExact(c.getId()));
-//        donatorService.specialDeleteDonator(c);
-//    }
+    @PostMapping("/donator/delete")
+    public void deleteDonator(@RequestBody DonatorDTO c){
+        Donator d = donatorMapper.dtoToDonator(c);
+        d = donatorService.findById(d.getId());
+        System.out.println(c.getId() + " " + c.getLastName() + " " + c.getFirstName());
+        donatorService.specialDeleteDonator(d);
+    }
 }

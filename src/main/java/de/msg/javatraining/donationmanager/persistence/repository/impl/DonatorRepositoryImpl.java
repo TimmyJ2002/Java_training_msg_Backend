@@ -21,7 +21,7 @@ public class DonatorRepositoryImpl implements DonatorRepository {
     public void saveDonator(Donator u) {
         u.setActive(true);
         try {
-            em.persist(u);
+            em.merge(u);
         }
         catch (PropertyValueException e)
         {
