@@ -9,26 +9,26 @@ public class DonationRequestWrapper {
 
     String currency;
 
-    Campaign campaign;
+    int campaignID;
 
-    Donator donator;
+    int donatorID;
 
     String notes;
 
-    public Campaign getCampaign() {
-        return campaign;
+    public int getCampaignID() {
+        return campaignID;
     }
 
-    public void setCampaign(Campaign campaign) {
-        this.campaign = campaign;
+    public void setCampaignID(int campaignID) {
+        this.campaignID = campaignID;
     }
 
-    public Donator getDonator() {
-        return donator;
+    public int getDonatorID() {
+        return donatorID;
     }
 
-    public void setDonator(Donator donator) {
-        this.donator = donator;
+    public void setDonatorID(int donatorID) {
+        this.donatorID = donatorID;
     }
 
     public int getAmount() {

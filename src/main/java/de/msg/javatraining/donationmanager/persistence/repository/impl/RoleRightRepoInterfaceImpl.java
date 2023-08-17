@@ -49,5 +49,10 @@ public class RoleRightRepoInterfaceImpl implements RoleRightRepoInterface {
         return query.getSingleResult();
     }
 
+    @Override
+    public void update(Role role) {
+        em.merge(role);
+    }
+
 
 }

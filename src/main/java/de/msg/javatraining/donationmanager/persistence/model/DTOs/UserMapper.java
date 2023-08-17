@@ -24,9 +24,12 @@ public class UserMapper {
             userDTO.setLastName(user.getLastName());
             userDTO.setEmail(user.getEmail());
             userDTO.setMobileNumber(user.getMobileNumber());
-            // You may need to map other properties as well
+
             return userDTO;
     }
+
+
+
 
 }
 

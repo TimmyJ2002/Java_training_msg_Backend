@@ -20,14 +20,17 @@ public class DonatorRepositoryImpl implements DonatorRepository {
     @Override
     public void saveDonator(Donator u) {
         u.setActive(true);
-        try {
-            em.persist(u);
-        }
-        catch (PropertyValueException e)
-        {
-            //adaug la tabela de log
-            e.printStackTrace();
-        }
+        if(u.getId()== null)
+                em.persist(u);
+        else
+//            try {
+                em.merge(u);
+//            }
+//        catch (PropertyValueException e)
+//        {
+//            //adaug la tabela de log
+//            e.printStackTrace();
+//        }
     }
 
     @Override

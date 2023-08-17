@@ -28,10 +28,8 @@ public class Donator {
     private String maidenName;
 
     @OneToMany(
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            mappedBy = "donator",
-            fetch = FetchType.EAGER
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            mappedBy = "donator"
     )
     private List<Donation> donationList;
 
@@ -97,6 +95,7 @@ public class Donator {
     }
 
     public void specialDelete(){
+
         this.setFirstName("Unknown");
         this.setLastName("Unknown");
         this.setMaidenName("");
