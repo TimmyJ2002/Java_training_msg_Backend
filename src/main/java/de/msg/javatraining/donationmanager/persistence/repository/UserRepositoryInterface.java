@@ -22,4 +22,6 @@ public interface UserRepositoryInterface extends JpaRepository<User, Long> {
   @Modifying // It means it's not a select statement
   @Query(value = "UPDATE user set password = :password", nativeQuery = true)
   void changeUserPassword(@Param("password") String password);
+
+  boolean existsByMobileNumber(String mobileNumber);
 }

@@ -24,8 +24,8 @@ import javax.management.InstanceAlreadyExistsException;
 
     @PostMapping("/save")
     public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) throws InstanceAlreadyExistsException {
+
         User newUser = userService.createUser(userDTO);
-        System.out.println(userDTO);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 }

@@ -55,7 +55,6 @@ public class DonatorController {
     public void createDonator(@RequestBody DonatorDTO c){
         donatorService.saveDonator(donatorMapper.dtoToDonator(c));
     }
-
     @PostMapping("/donator/delete")
     public void deleteDonator(@RequestBody DonatorDTO c){
         Donator d = donatorMapper.dtoToDonator(c);
