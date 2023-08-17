@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.msg.javatraining.donationmanager.persistence.model.DTOs.UserMapper.mapUserDTOToUser;
+import static de.msg.javatraining.donationmanager.persistence.model.DTOs.UserMapper.mapUserToUserDTO;
 
 @Service
 public class UserService {
@@ -52,9 +53,9 @@ public class UserService {
         String initialPassword = generateInitialPassword();
         user.setPassword(initialPassword);
 
-        System.out.println("ok");
+
         sendWelcomeEmail(user.getEmail(), initialPassword);
-        System.out.println("nu ok");
+
         //initial login count 0 & is_active status true
         user.setLoginCount(0);
         user.setActive(true);
@@ -164,5 +165,51 @@ public class UserService {
         } else {
             System.out.println("FAILED TO UPDATE LOGINCOUNT!");
         }
+    }
+
+    public User findById(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isPresent()) {
+            return userOptional.get();
+        } else {
+            throw new UserNotFoundException("User not found with ID: " + id);
+        }
+    }
+
+    public User updateUser(Long id, UserDTO userDTO) throws IllegalArgumentException{
+        User existingUser = userRepository.findById(id).get();
+//        existingUser.setFirstName(userDTO.getFirstName());
+//        existingUser.setLastName(userDTO.getLastName());
+//        existingUser.setEmail(userDTO.getEmail());
+//        existingUser.setMobileNumber(userDTO.getMobileNumber());
+        validateUserInputForUpdate(id,userDTO);
+        existingUser = mapUserDTOToUser(userDTO);
+        List<Role> roles = processRoles(userDTO.getRoles());
+        existingUser.setRoles(roles);
+        existingUser.setId(id);
+        return userRepository.save(existingUser);
+
+    }
+
+    private boolean validateUserInputForUpdate(Long id, UserDTO userDTO) {
+        boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userDTO.getEmail(), id);
+        if (isEmailExisting) {
+            throw new EmailAlreadyExistsException("Another User with this Email already exists in the database");
+        }
+
+        // Check if mobile number is already existing
+        boolean isMobileNumberExisting = userRepository.existsByMobileNumberAndIdNot(userDTO.getMobileNumber(), id);
+        if (isMobileNumberExisting) {
+            throw new MobileNumberAlreadyExistsException("Another User with this mobile number already exists in the database");
+        }
+
+        // All checks passed
+        return true;
+    }
+
+    public List<UserDTO> getAllUsers() {
+       List<User> userList = userRepository.findAll();
+       return userList.stream().map(user -> mapUserToUserDTO(user)).collect(Collectors.toList());
     }
 }

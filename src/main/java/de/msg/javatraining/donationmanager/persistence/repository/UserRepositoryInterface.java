@@ -24,4 +24,10 @@ public interface UserRepositoryInterface extends JpaRepository<User, Long> {
   void changeUserPassword(@Param("password") String password);
 
   boolean existsByMobileNumber(String mobileNumber);
+
+
+  boolean existsByEmailAndIdNot(String email, Long id);
+
+  boolean existsByMobileNumberAndIdNot(String mobileNumber, Long id);
+
 }

@@ -1,13 +1,7 @@
 package de.msg.javatraining.donationmanager.persistence.model.DTOs;
 
-import de.msg.javatraining.donationmanager.persistence.model.ERole;
-import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-
-import static java.util.Arrays.asList;
 
 @Component
 public class UserMapper {
@@ -19,6 +13,7 @@ public class UserMapper {
         user.setLastName(userDTO.getLastName());
         user.setEmail(userDTO.getEmail());
         user.setMobileNumber(userDTO.getMobileNumber());
+
         return user;
     }
 
@@ -29,7 +24,7 @@ public class UserMapper {
             userDTO.setLastName(user.getLastName());
             userDTO.setEmail(user.getEmail());
             userDTO.setMobileNumber(user.getMobileNumber());
-            // You may need to map other properties as well
+
             return userDTO;
     }
 
