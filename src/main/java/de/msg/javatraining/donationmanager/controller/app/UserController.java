@@ -50,6 +50,7 @@ import java.util.List;
             return new ResponseEntity<>("User was updated", HttpStatus.OK);
     }
 
+
     @PutMapping("/activate/{id}")
     public ResponseEntity<String> activateDeactivateUser(@PathVariable("id") Long id){
         userService.activateDeacticateUser(id);
