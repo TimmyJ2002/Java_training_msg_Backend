@@ -45,7 +45,7 @@ import java.util.List;
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable("id") Long id, @RequestBody UserDTO updateUserDTO){
+    public ResponseEntity<String> updateUser(@PathVariable("id") Long id, @RequestBody UserWithIdDTO updateUserDTO){
 
             userService.updateUser(id, updateUserDTO);
             return new ResponseEntity<>("User was updated", HttpStatus.OK);

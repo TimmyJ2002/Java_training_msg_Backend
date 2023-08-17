@@ -176,8 +176,8 @@ public class UserService {
         }
     }
 
-    public User updateUser(Long id, UserDTO userDTO) throws IllegalArgumentException{
-        validateUserInputForUpdate(id,userDTO);
+    public User updateUser(Long id, UserWithIdDTO userWithIdDTO) throws IllegalArgumentException{
+        validateUserInputForUpdate(id, userWithIdDTO);
 
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isEmpty()) {
@@ -185,23 +185,28 @@ public class UserService {
         }
         User user = existingUser.get();
 
-        user = mapUserDTOToUser(userDTO);
-        List<Role> roles = processRoles(userDTO.getRoles());
-        user.setRoles(roles);
-        user.setId(id);
+        user.setFirstName(userWithIdDTO.getFirstName());
+        user.setLastName(userWithIdDTO.getLastName());
+        user.setEmail(userWithIdDTO.getEmail());
+        user.setMobileNumber(userWithIdDTO.getMobileNumber());
+        user.setLoginCount(userWithIdDTO.getLoginCount());
+        user.setRoles(userWithIdDTO.getRoles());
+        user.setActive(userWithIdDTO.isActive());
+
+
         return userRepository.save(user);
 
     }
 
-    private boolean validateUserInputForUpdate(Long id, UserDTO userDTO) {
+    private boolean validateUserInputForUpdate(Long id, UserWithIdDTO userWithIdDTO) {
 
-        boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userDTO.getEmail(), id);
+        boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userWithIdDTO.getEmail(), id);
         if (isEmailExisting) {
             throw new EmailAlreadyExistsException("Another User with this Email already exists in the database");
         }
 
         // Check if mobile number is already existing
-        boolean isMobileNumberExisting = userRepository.existsByMobileNumberAndIdNot(userDTO.getMobileNumber(), id);
+        boolean isMobileNumberExisting = userRepository.existsByMobileNumberAndIdNot(userWithIdDTO.getMobileNumber(), id);
         if (isMobileNumberExisting) {
             throw new MobileNumberAlreadyExistsException("Another User with this mobile number already exists in the database");
         }
