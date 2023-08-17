@@ -2,7 +2,7 @@ package de.msg.javatraining.donationmanager.service;
 
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.exception.*;
-import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserDTO;
+import de.msg.javatraining.donationmanager.persistence.model.DTOs.*;
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
@@ -18,8 +18,7 @@ import de.msg.javatraining.donationmanager.persistence.model.ERole;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.msg.javatraining.donationmanager.persistence.model.DTOs.UserMapper.mapUserDTOToUser;
-import static de.msg.javatraining.donationmanager.persistence.model.DTOs.UserMapper.mapUserToUserDTO;
+import static de.msg.javatraining.donationmanager.persistence.model.DTOs.UserMapper.*;
 
 @Service
 public class UserService {
@@ -178,21 +177,24 @@ public class UserService {
     }
 
     public User updateUser(Long id, UserDTO userDTO) throws IllegalArgumentException{
-        User existingUser = userRepository.findById(id).get();
-//        existingUser.setFirstName(userDTO.getFirstName());
-//        existingUser.setLastName(userDTO.getLastName());
-//        existingUser.setEmail(userDTO.getEmail());
-//        existingUser.setMobileNumber(userDTO.getMobileNumber());
         validateUserInputForUpdate(id,userDTO);
-        existingUser = mapUserDTOToUser(userDTO);
+
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isEmpty()) {
+            throw new UserNotFoundException("User with ID " + id + " not found");
+        }
+        User user = existingUser.get();
+
+        user = mapUserDTOToUser(userDTO);
         List<Role> roles = processRoles(userDTO.getRoles());
-        existingUser.setRoles(roles);
-        existingUser.setId(id);
-        return userRepository.save(existingUser);
+        user.setRoles(roles);
+        user.setId(id);
+        return userRepository.save(user);
 
     }
 
     private boolean validateUserInputForUpdate(Long id, UserDTO userDTO) {
+
         boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userDTO.getEmail(), id);
         if (isEmailExisting) {
             throw new EmailAlreadyExistsException("Another User with this Email already exists in the database");
@@ -208,8 +210,17 @@ public class UserService {
         return true;
     }
 
-    public List<UserDTO> getAllUsers() {
+    public List<UserWithIdDTO> getAllUsers() {
        List<User> userList = userRepository.findAll();
-       return userList.stream().map(user -> mapUserToUserDTO(user)).collect(Collectors.toList());
+       return userList.stream().map(user -> mapUserToUserWithIdDTO(user)).collect(Collectors.toList());
+    }
+
+    public UserDTO activateDeacticateUser(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException("User with ID " + id + " not found");
+        }
+        User user = userOptional.get();
+return null;
     }
 }
