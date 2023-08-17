@@ -232,9 +232,9 @@ public class UserService {
             throw new UserNotFoundException("User with ID " + id + " not found");
         }
         User user = userOptional.get();
+        user.setActive(!user.getIsActive());
+        userRepository.save(user);
 
-
-        //TODO: Finish task
-        return null;
+        return mapUserToUserDTO(user);
     }
 }
