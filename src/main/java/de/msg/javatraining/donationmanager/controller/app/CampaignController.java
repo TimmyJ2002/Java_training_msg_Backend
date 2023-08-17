@@ -2,7 +2,7 @@ package de.msg.javatraining.donationmanager.controller.app;
 
 import de.msg.javatraining.donationmanager.persistence.model.Campaign;
 import de.msg.javatraining.donationmanager.persistence.modelDTO.CampaignDto;
-import de.msg.javatraining.donationmanager.service.CampaignConverter;
+import de.msg.javatraining.donationmanager.persistence.modelDTO.CampaignConverter;
 import de.msg.javatraining.donationmanager.service.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,7 +56,13 @@ public class CampaignController {
     }
 
     @DeleteMapping("/campaign/delete/{id}")
-    public void deleteCampaign(@PathVariable Long id, @RequestBody CampaignDto campaign) {
-        campaignService.delete(id, campaignConverter.dtoToCampaign(campaign));
+    public ResponseEntity<?> deleteCampaign(@PathVariable Long id) {
+        try {
+          campaignService.delete(id);
+            return new ResponseEntity<>("Campaign deleted.", HttpStatus.OK);
+        }
+        catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Campaign could not be deleted because it has approved donations.", HttpStatus.BAD_REQUEST);
+        }
     }
 }

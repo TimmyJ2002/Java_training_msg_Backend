@@ -53,9 +53,20 @@ public class CampaignRepositoryImpl implements CampaignRepository {
     }
 
     @Override
-    public void delete(Campaign campaign) {
-
-        entityManager.remove(campaign);
+    public Object delete(Long id) {
+    Campaign existingCampaign = entityManager.find(Campaign.class, id);
+    if (existingCampaign != null) {
+        TypedQuery<Long> query = entityManager.createQuery("SELECT COUNT(d) FROM Donation d WHERE d.campaign.id = :id", Long.class);
+        query.setParameter("id", id);
+        Long donationsCount = query.getSingleResult();
+        if (donationsCount == 0) {
+            entityManager.remove(existingCampaign);
+            return null;
+        } else {
+            throw new IllegalArgumentException("Campaign has paid donations and cannot be deleted.");
+        }
+    }
+    throw new IllegalArgumentException("Campaign doesnt exist.");
     }
 
     @Override
@@ -73,7 +84,6 @@ public class CampaignRepositoryImpl implements CampaignRepository {
         TypedQuery<Campaign> query = entityManager.createQuery(
                 "SELECT c FROM Campaign c WHERE c.name = :name", Campaign.class);
         query.setParameter("name", name); // Bind the parameter
-
         try {
             return query.getSingleResult();
         } catch (NoResultException e) {

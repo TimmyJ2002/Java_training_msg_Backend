@@ -8,7 +8,7 @@ import java.util.List;
 @Repository
 public interface CampaignRepository {
     Campaign create(Campaign campaign);
-    void delete(Campaign campaign);
+    Object delete(Long id);
     Campaign update(Long id, Campaign campaign);
     List<Campaign> findAll();
     Campaign findById(long id);

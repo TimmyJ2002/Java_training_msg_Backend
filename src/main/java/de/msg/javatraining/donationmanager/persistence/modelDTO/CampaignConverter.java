@@ -1,4 +1,4 @@
-package de.msg.javatraining.donationmanager.service;
+package de.msg.javatraining.donationmanager.persistence.modelDTO;
 
 import de.msg.javatraining.donationmanager.persistence.model.Campaign;
 import de.msg.javatraining.donationmanager.persistence.modelDTO.CampaignDto;

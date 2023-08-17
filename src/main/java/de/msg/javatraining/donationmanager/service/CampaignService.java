@@ -32,8 +32,7 @@ public class CampaignService {
         return updateCampaign;
     }
 
-    public void delete(Long id, Campaign campaign) {
-        campaignRepository.delete(campaign);
+    public void delete(Long id) {
+       campaignRepository.delete(id);
     }
-
 }
