@@ -53,7 +53,7 @@ public class AuthController {
 
     if (userDetails.getLoginCount() == -1) {
       return ResponseEntity.status(HttpStatus.OK)
-              .body("{\"message\": \"Password change required\", \"loginCount\": -1}");
+              .body("{\"message\": \"Password change required\"}");
     }
 
 
@@ -90,6 +90,12 @@ public class AuthController {
   ) {
     userService.updateLoginCount(userId, newLoginCount);
     return ResponseEntity.ok("Login count updated successfully");
+  }
+
+  @GetMapping("/get-username")
+  public ResponseEntity<String> getUsernameFromToken(@RequestParam String token) {
+    String username = jwtUtils.getUserNameFromJwtToken(token);
+    return ResponseEntity.ok(username);
   }
 
   @PostMapping("/logout")
