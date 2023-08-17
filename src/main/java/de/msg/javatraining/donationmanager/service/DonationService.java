@@ -1,8 +1,7 @@
 package de.msg.javatraining.donationmanager.service;
 
 import de.msg.javatraining.donationmanager.persistence.model.Donation;
-import de.msg.javatraining.donationmanager.persistence.model.Donator;
-import de.msg.javatraining.donationmanager.persistence.repository.impl.DonationRepositoryImpl;
+import de.msg.javatraining.donationmanager.persistence.repository.DonationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +10,19 @@ import java.util.List;
 public class DonationService {
 
     @Autowired
-    DonationRepositoryImpl donationRepository;
+    DonationRepository donationRepositoryInterface;
 
-    public List<Donation> findAll(){
-        List<Donation> d = donationRepository.findAll();
-        return d;
+    public void addDonation(Donation donation) {
+        donationRepositoryInterface.saveDonation(donation);
     }
+
+    public void removeDonation(Donation donation) {
+        donationRepositoryInterface.deleteDonation(donation);
+    }
+
+    public List<Donation> findAll() {
+        return donationRepositoryInterface.findAll();
+    }
+
+
 }

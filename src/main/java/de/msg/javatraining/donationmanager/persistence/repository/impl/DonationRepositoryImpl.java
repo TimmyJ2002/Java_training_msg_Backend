@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 @Repository
 @Transactional
 public class DonationRepositoryImpl implements DonationRepository {
@@ -16,7 +17,18 @@ public class DonationRepositoryImpl implements DonationRepository {
     private EntityManager em;
 
     @Override
-    public List<Donation> findAll() {
-        return em.createQuery("SELECT d FROM Donation d", Donation.class).getResultList();
+    public void saveDonation(Donation donation) {
+        em.persist(donation);
     }
+
+    @Override
+    public void deleteDonation(Donation donation) {
+        em.remove(donation);
+    }
+
+    @Override
+    public List<Donation> findAll() {
+        return em.createQuery("select dono from Donation dono", Donation.class).getResultList();
+    }
+
 }

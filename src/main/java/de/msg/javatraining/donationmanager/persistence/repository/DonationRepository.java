@@ -6,5 +6,9 @@ import java.util.List;
 
 public interface DonationRepository {
 
+    void saveDonation(Donation donation);
+
+    void deleteDonation(Donation donation);
+
     List<Donation> findAll();
 }

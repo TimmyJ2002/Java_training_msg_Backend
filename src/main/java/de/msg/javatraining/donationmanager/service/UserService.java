@@ -25,7 +25,6 @@ public class UserService {
     WebSecurityConfig webSecurityConfig;
 
 
-
     public User createUser(UserDTO userDTO){
         validateUserInput(userDTO);
 
@@ -112,4 +111,9 @@ public class UserService {
             System.out.println("FAILED TO UPDATE LOGINCOUNT!");
         }
     }
+
+    public User findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
 }
