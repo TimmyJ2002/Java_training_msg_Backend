@@ -221,6 +221,9 @@ public class UserService {
             throw new UserNotFoundException("User with ID " + id + " not found");
         }
         User user = userOptional.get();
-return null;
+
+        user.getIsActive();
+        //TODO: Finish task
+        return null;
     }
 }

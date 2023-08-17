@@ -1,9 +1,12 @@
 package de.msg.javatraining.donationmanager.persistence.model.DTOs;
 
+import de.msg.javatraining.donationmanager.persistence.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 
 @Getter
@@ -13,9 +16,12 @@ import lombok.Setter;
 public class UserWithIdDTO {
 
     private Long id;
+    private String username;
     private String firstName;
     private String lastName;
     private String email;
     private String mobileNumber;
-    private String[] roles;
+    private int loginCount;
+    private List<Role> roles;
+    private boolean isActive;
 }
