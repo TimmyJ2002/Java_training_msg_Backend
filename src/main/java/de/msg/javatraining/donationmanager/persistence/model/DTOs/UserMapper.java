@@ -28,6 +28,17 @@ public class UserMapper {
             return userDTO;
     }
 
+    public static UserWithIdDTO mapUserToUserWithIdDTO(User user){
+        UserWithIdDTO userWithIdDTO = new UserWithIdDTO();
+        userWithIdDTO.setId(user.getId());
+        userWithIdDTO.setFirstName(user.getFirstName());
+        userWithIdDTO.setLastName(user.getLastName());
+        userWithIdDTO.setEmail(user.getEmail());
+        userWithIdDTO.setMobileNumber(user.getMobileNumber());
+
+        return userWithIdDTO;
+    }
+
 
 
 
