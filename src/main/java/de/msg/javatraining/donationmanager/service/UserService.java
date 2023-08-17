@@ -185,15 +185,21 @@ public class UserService {
         }
         User user = existingUser.get();
 
-        user.setFirstName(userWithIdDTO.getFirstName());
-        user.setLastName(userWithIdDTO.getLastName());
-        user.setEmail(userWithIdDTO.getEmail());
-        user.setMobileNumber(userWithIdDTO.getMobileNumber());
-        user.setLoginCount(userWithIdDTO.getLoginCount());
-        user.setRoles(userWithIdDTO.getRoles());
-        user.setActive(userWithIdDTO.isActive());
-
-
+        if (userWithIdDTO.getFirstName() != null) {
+            user.setFirstName(userWithIdDTO.getFirstName());
+        }
+        if (userWithIdDTO.getLastName() != null) {
+            user.setLastName(userWithIdDTO.getLastName());
+        }
+        if (userWithIdDTO.getEmail() != null) {
+            user.setEmail(userWithIdDTO.getEmail());
+        }
+        if (userWithIdDTO.getMobileNumber() != null) {
+            user.setMobileNumber(userWithIdDTO.getMobileNumber());
+        }
+        if (userWithIdDTO.getRoles() != null) {
+            user.setRoles(userWithIdDTO.getRoles());
+        }
         return userRepository.save(user);
 
     }
@@ -227,7 +233,7 @@ public class UserService {
         }
         User user = userOptional.get();
 
-        user.getIsActive();
+
         //TODO: Finish task
         return null;
     }
