@@ -17,4 +17,12 @@ public class DonationService {
         List<Donation> d = donationRepository.findAll();
         return d;
     }
+    public void deleteDonation(Donation d){
+        donationRepository.deleteDonation(d);
+    }
+
+    public Donation findById(long id) {
+        return donationRepository.findById(id);
+    }
+
 }
