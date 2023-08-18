@@ -200,24 +200,29 @@ public class UserService {
         if (userWithIdDTO.getRoles() != null) {
             user.setRoles(userWithIdDTO.getRoles());
         }
+        if (userWithIdDTO.getActive() != null) {
+            user.setActive(userWithIdDTO.getActive());
+        }
         return userRepository.save(user);
 
     }
 
     private boolean validateUserInputForUpdate(Long id, UserWithIdDTO userWithIdDTO) {
-
-        boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userWithIdDTO.getEmail(), id);
-        if (isEmailExisting) {
-            throw new EmailAlreadyExistsException("Another User with this Email already exists in the database");
+        if (userWithIdDTO.getEmail() != null && !userWithIdDTO.getEmail().isEmpty()) {
+            boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userWithIdDTO.getEmail(), id);
+            if (isEmailExisting) {
+                throw new EmailAlreadyExistsException("Another User with this Email already exists in the database");
+            }
         }
 
-        // Check if mobile number is already existing
-        boolean isMobileNumberExisting = userRepository.existsByMobileNumberAndIdNot(userWithIdDTO.getMobileNumber(), id);
-        if (isMobileNumberExisting) {
-            throw new MobileNumberAlreadyExistsException("Another User with this mobile number already exists in the database");
+        if (userWithIdDTO.getMobileNumber() != null && !userWithIdDTO.getMobileNumber().isEmpty()) {
+            // Check if mobile number is already existing
+            boolean isMobileNumberExisting = userRepository.existsByMobileNumberAndIdNot(userWithIdDTO.getMobileNumber(), id);
+            if (isMobileNumberExisting) {
+                throw new MobileNumberAlreadyExistsException("Another User with this mobile number already exists in the database");
+            }
         }
 
-        // All checks passed
         return true;
     }
 

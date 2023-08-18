@@ -56,7 +56,7 @@ public class UserMapper {
         user.setMobileNumber(userWithIdDTO.getMobileNumber());
         user.setLoginCount(userWithIdDTO.getLoginCount());
         user.setRoles(userWithIdDTO.getRoles());
-        user.setActive(userWithIdDTO.isActive());
+        user.setActive(userWithIdDTO.getActive());
 
 
         return user;
