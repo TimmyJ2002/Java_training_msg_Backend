@@ -7,4 +7,8 @@ import java.util.List;
 public interface DonationRepository {
 
     List<Donation> findAll();
+
+    public Donation findById(long id);
+
+    void deleteDonation(Donation d);
 }
