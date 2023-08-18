@@ -97,6 +97,7 @@ public class AuthController {
     System.out.println("Received Authorization header: " + authorizationHeader);
 
     // Extract token from Authorization header
+//    String token = authorizationHeader.substring("Bearer ".length());
     String token = authorizationHeader.substring("Bearer ".length());
     System.out.println("Extracted Token: " + token);
 
