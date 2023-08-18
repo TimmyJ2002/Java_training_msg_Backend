@@ -185,16 +185,17 @@ public class UserService {
         }
         User user = existingUser.get();
 
-        if (userWithIdDTO.getFirstName() != null) {
+        if (userWithIdDTO.getFirstName() != null && userWithIdDTO.getFirstName().length() < 255) {
             user.setFirstName(userWithIdDTO.getFirstName());
         }
-        if (userWithIdDTO.getLastName() != null) {
+        if (userWithIdDTO.getLastName() != null && userWithIdDTO.getLastName().length() < 255) {
             user.setLastName(userWithIdDTO.getLastName());
+
         }
-        if (userWithIdDTO.getEmail() != null) {
+        if (userWithIdDTO.getEmail() != null && userWithIdDTO.getEmail().length() < 255) {
             user.setEmail(userWithIdDTO.getEmail());
         }
-        if (userWithIdDTO.getMobileNumber() != null) {
+        if (userWithIdDTO.getMobileNumber() != null && userWithIdDTO.getMobileNumber().length() < 255) {
             user.setMobileNumber(userWithIdDTO.getMobileNumber());
         }
         if (userWithIdDTO.getRoles() != null) {
