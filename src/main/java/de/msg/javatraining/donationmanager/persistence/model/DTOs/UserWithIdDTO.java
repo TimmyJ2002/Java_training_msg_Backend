@@ -22,5 +22,5 @@ public class UserWithIdDTO {
     private String mobileNumber;
     private int loginCount;
     private List<Role> roles;
-    private boolean isActive;
+    private Boolean active;
 }
