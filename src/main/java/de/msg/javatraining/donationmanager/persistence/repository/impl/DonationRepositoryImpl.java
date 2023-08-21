@@ -3,6 +3,7 @@ package de.msg.javatraining.donationmanager.persistence.repository.impl;
 import de.msg.javatraining.donationmanager.persistence.model.Campaign;
 import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Donator;
+import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.repository.DonationRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

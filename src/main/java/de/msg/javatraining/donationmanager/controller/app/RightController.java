@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RestController
 public class RightController {
@@ -35,14 +36,30 @@ public class RightController {
 
     @PostMapping("roles/removeRight")
     public void removeRoleRight(@RequestBody RequestWrapper requestWrapper) {
-
-
         roleRightManagementService.removeRight(requestWrapper.getRoleID(), requestWrapper.getRoleRight());
     }
 
-    @PutMapping("roles/updateRight")
-    public void updateRoleRight(@RequestBody Role role) {
-        roleRightManagementService.updateRight(role);
+    @PostMapping("roles/updateRight")
+    public void updateRoleRight(@RequestBody RequestWrapper requestWrapper) {
+        Role oldRole = roleRightManagementService.findByID(requestWrapper.getRoleID());
+        List<ERight> selectedRights = requestWrapper.getRights();
+        AtomicBoolean exists = new AtomicBoolean(false);
+        Role_Right rr = new Role_Right();
+        oldRole.getRights().forEach((right) -> {
+            if (!selectedRights.contains(right)) {
+                roleRightManagementService.removeRight(requestWrapper.getRoleID(), right.getRoleRight());
+            }
+        });
+        selectedRights.forEach((right) -> {
+            if (!oldRole.getRights().contains(right)) {
+
+                rr.setRoleRight(requestWrapper.getRoleRight());
+                rr.setRole(roleRightManagementService.findByID(requestWrapper.getRoleID()));
+
+                roleRightManagementService.addRight(rr);
+            }
+        });
+
     }
 
 }

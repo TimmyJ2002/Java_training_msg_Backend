@@ -57,6 +57,6 @@ public class RoleRightManagementService {
     }
 
     public void updateRight(Role role) {
-        roleRightRepo.update(role);
+        roleRepo.updateRole(role);
     }
 }
