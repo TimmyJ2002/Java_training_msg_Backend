@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Entity
 @Table(name="donation")
