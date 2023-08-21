@@ -38,26 +38,6 @@ public class DonationController {
     }
 
 
-//    @PutMapping("/approve/{donation_id}/{approvedby_id}")
-//    public ResponseEntity<?> approveDonation(
-//            @PathVariable(name = "donation_id") Long donationId,
-//            @PathVariable(name = "approvedby_id") Long approvedById) {
-//
-//        Donation donation = donationService.findById(donationId);
-//        User approvedBy = userService.findById(approvedById);
-//
-//        if (donation != null && approvedBy != null) {
-//            if (!Objects.equals(donation.getCreatedBy().getId(), approvedById)) {
-//                donationService.approveDonation(donation, approvedBy);
-//                return ResponseEntity.ok(donation); // Return the approved donation
-//            } else {
-//                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                        .body("{\"message\": \"Cannot approve donation created by the same user\"}");
-//            }
-//        } else {
-//            return ResponseEntity.notFound().build(); // Return 404 Not Found
-//        }
-//    }
 @PutMapping("donations/approve/{donation_id}")
 public ResponseEntity<?> approveDonation(
         @NonNull HttpServletRequest request,
