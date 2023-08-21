@@ -1,11 +1,12 @@
 package de.msg.javatraining.donationmanager.controller.app;
 
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
-import de.msg.javatraining.donationmanager.persistence.model.Campaign;
 import de.msg.javatraining.donationmanager.persistence.model.Donation;
-import de.msg.javatraining.donationmanager.persistence.model.Role_Right;
 import de.msg.javatraining.donationmanager.persistence.model.User;
-import de.msg.javatraining.donationmanager.service.*;
+import de.msg.javatraining.donationmanager.service.CampaignService;
+import de.msg.javatraining.donationmanager.service.DonationService;
+import de.msg.javatraining.donationmanager.service.DonatorService;
+import de.msg.javatraining.donationmanager.service.UserService;
 import de.msg.javatraining.donationmanager.utils.DonationRequestWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,18 @@ public class DonationController {
 
         donation.setNotes(donationRequestWrapper.getNotes());
         donationService.addDonation(donation);
+    }
+
+    @PostMapping("donations/updateDonation")
+    public void updateDonation(@RequestBody DonationRequestWrapper donationRequestWrapper) {
+
+        donationService.updateDonation(
+                donationRequestWrapper.getDonationID(),
+                donationRequestWrapper.getAmount(),
+                donationRequestWrapper.getCurrency(),
+                campaignService.findById((long) donationRequestWrapper.getCampaignID()),
+                donatorService.findById(donationRequestWrapper.getDonatorID()),
+                donationRequestWrapper.getNotes());
     }
 
     private String parseJwt(HttpServletRequest request) {

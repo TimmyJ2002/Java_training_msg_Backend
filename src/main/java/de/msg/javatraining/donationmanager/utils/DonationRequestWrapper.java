@@ -5,6 +5,8 @@ import de.msg.javatraining.donationmanager.persistence.model.Donator;
 
 public class DonationRequestWrapper {
 
+    int donationID;
+
     int amount;
 
     String currency;
@@ -14,6 +16,14 @@ public class DonationRequestWrapper {
     int donatorID;
 
     String notes;
+
+    public int getDonationID() {
+        return donationID;
+    }
+
+    public void setDonationID(int donationID) {
+        this.donationID = donationID;
+    }
 
     public int getCampaignID() {
         return campaignID;
