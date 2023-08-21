@@ -1,5 +1,6 @@
 package de.msg.javatraining.donationmanager.service;
 
+import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.exception.DonationNotFoundException;
 import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Donator;
@@ -7,8 +8,11 @@ import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.DonationRepositoryJPA;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.DonationRepositoryImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,6 +30,14 @@ public class DonationService {
     @Autowired
     UserRepositoryInterface userRepository;
 
+    @Autowired
+    UserService userService;
+
+
+
+    @Autowired
+    JwtUtils jwtUtils;
+
     public List<Donation> findAll() {
         List<Donation> d = donationRepository.findAll();
         return d;
@@ -42,10 +54,46 @@ public class DonationService {
         }
     }
 
-    public void approveDonation(Donation donation, User userThatAprroved) {
-       donation.setApproved(true);
-       donation.setApprovedBy(userThatAprroved);
-       donation.setApproveDate(LocalDate.now());
-       donationRepositoryJPA.save(donation);
+//    public void approveDonation(HttpServletRequest request, Donation donation) {
+//
+//        String jwt = parseJwt(request);
+//        String username = jwtUtils.getUserNameFromJwtToken(jwt);
+//
+//        Optional<User> createdByUser = userService.findUserByUsername(username);
+//
+//       donation.setApproved(true);
+//       donation.setApprovedBy(createdByUser);
+//       donation.setApproveDate(LocalDate.now());
+//       donationRepositoryJPA.save(donation);
+//    }
+
+    public void approveDonation(HttpServletRequest request, Long donationId) throws ChangeSetPersister.NotFoundException {
+        String jwt = parseJwt(request);
+        String username = jwtUtils.getUserNameFromJwtToken(jwt);
+
+        User approvedByUser = userService.findUserByUsername(username)
+                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
+        Donation donation = findById(donationId);
+
+        if (donation != null) {
+            donation.setApproved(true);
+            donation.setApprovedBy(approvedByUser);
+            donation.setApproveDate(LocalDate.now());
+            donationRepositoryJPA.save(donation);
+        } else {
+            // Handle case where the donation is not found
+            throw new ChangeSetPersister.NotFoundException();
+        }
     }
+
+
+    public String parseJwt(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+
+        if (StringUtils.hasText(headerAuth)) {
+            return headerAuth.substring(0, headerAuth.length());
+        }
+        return null;
+    }
+
 }

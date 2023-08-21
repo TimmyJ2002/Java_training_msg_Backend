@@ -232,7 +232,7 @@ public class UserService {
        return userList.stream().map(user -> mapUserToUserWithIdDTO(user)).collect(Collectors.toList());
     }
 
-    public UserDTO activateDeacticateUser(Long id) {
+    public UserDTO activateDeactivateUser(Long id) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new UserNotFoundException("User with ID " + id + " not found");
@@ -243,4 +243,9 @@ public class UserService {
 
         return mapUserToUserDTO(user);
     }
+
+    public Optional<User> findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
 }
