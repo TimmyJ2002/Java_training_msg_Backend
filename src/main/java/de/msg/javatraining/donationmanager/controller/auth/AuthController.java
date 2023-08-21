@@ -7,7 +7,10 @@ import de.msg.javatraining.donationmanager.persistence.repository.UserRepository
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.service.UserDetailsImpl;
 import de.msg.javatraining.donationmanager.service.UserService;
+import io.micrometer.common.lang.NonNull;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -73,7 +76,6 @@ public class AuthController {
   public ResponseEntity<String> changePassword(@RequestBody RequestChangePassword requestChangePassword) throws Exception {
 
     User user = new User();
-    user.setId(requestChangePassword.getUserId());
     user.setPassword(requestChangePassword.getOldPassword());
 
     int check = userService.changeUserPassword(user, requestChangePassword.getNewPassword());
@@ -86,12 +88,19 @@ public class AuthController {
 
 
   @PutMapping("/update-login-count")
-  public ResponseEntity<String> updateLoginCount(
-          @RequestParam Long userId,
-          @RequestParam int newLoginCount
-  ) {
-    userService.updateLoginCount(userId, newLoginCount);
-    return ResponseEntity.ok("Login count updated successfully");
+  public ResponseEntity<String> updateLoginCount(@RequestBody RequestLogincountUpdate requestLogincountUpdate) throws Exception {
+
+    User user = new User();
+    user.setLoginCount(requestLogincountUpdate.newLoginCount);
+
+    int check = userService.updateLoginCount(user, requestLogincountUpdate.newLoginCount);
+    if(check == 1) {
+      return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Login count updated successfully\"}");
+    }
+    else {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Logincount update failed\"}");
+
+    }
   }
 
   @PostMapping("/logout")
@@ -99,7 +108,6 @@ public class AuthController {
     System.out.println("Received Authorization header: " + authorizationHeader);
 
     // Extract token from Authorization header
-//    String token = authorizationHeader.substring("Bearer ".length());
     String token = authorizationHeader.substring("Bearer ".length());
     System.out.println("Extracted Token: " + token);
 
@@ -115,7 +123,6 @@ public class AuthController {
   @GetMapping("/get-username")
   public String getUsernameFromToken(@RequestParam String token) {
     String username = jwtUtils.getUserNameFromJwtToken(token);
-//    return ResponseEntity.ok(username);
     return username;
   }
 

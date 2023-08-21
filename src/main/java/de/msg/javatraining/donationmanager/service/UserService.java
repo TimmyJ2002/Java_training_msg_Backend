@@ -1,5 +1,6 @@
 package de.msg.javatraining.donationmanager.service;
 
+import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.exception.*;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.*;
@@ -7,6 +8,7 @@ import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.RoleRepositoryInterfaceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -14,6 +16,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import de.msg.javatraining.donationmanager.persistence.model.ERole;
+import org.springframework.util.StringUtils;
 
 
 import java.util.*;
@@ -37,7 +40,11 @@ public class UserService {
     private JavaMailSender javaMailSender;
 
     @Autowired
+<<<<<<< Updated upstream
     private PasswordEncoder passwordEncoder;
+=======
+    private JwtUtils jwtUtils;
+>>>>>>> Stashed changes
 
 
 
@@ -146,6 +153,11 @@ public class UserService {
         return true;
     }
 
+    //TODO: implement method
+    private boolean checkLogincount(Long userId, Integer logincount){
+        return true;
+    }
+
     public int changeUserPassword(User user, String newPassword) throws Exception {
         Long userId = user.getId();
         String userPassword = user.getPassword();
@@ -159,15 +171,16 @@ public class UserService {
         return 0;
     }
 
-    public void updateLoginCount(Long userId, int newLoginCount) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setLoginCount(newLoginCount);
-            userRepository.save(user);
-        } else {
-            System.out.println("FAILED TO UPDATE LOGINCOUNT!");
+    public int updateLoginCount(User user, int newLoginCount) throws Exception {
+        Long userId = user.getId();
+
+        boolean checkUserLogincount = checkLogincount(userId, newLoginCount);
+
+        if(checkUserLogincount) {
+            userRepository.changeUserLogincount(newLoginCount);
+            return 1;
         }
+        return 0;
     }
 
     public User findById(Long id) {

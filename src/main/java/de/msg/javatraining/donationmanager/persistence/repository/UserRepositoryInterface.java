@@ -19,10 +19,14 @@ public interface UserRepositoryInterface extends JpaRepository<User, Long> {
   Boolean existsByEmail(String email);
 
   @Transactional
-  @Modifying // It means it's not a select statement
+  @Modifying
   @Query(value = "UPDATE user set password = :password", nativeQuery = true)
   void changeUserPassword(@Param("password") String password);
 
+  @Transactional
+  @Modifying
+  @Query(value = "UPDATE user set logincount = :logincount", nativeQuery = true)
+  void changeUserLogincount(@Param("logincount") Integer logincount);
   boolean existsByMobileNumber(String mobileNumber);
 
 
