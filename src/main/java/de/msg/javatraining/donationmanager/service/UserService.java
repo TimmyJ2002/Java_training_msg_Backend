@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import de.msg.javatraining.donationmanager.persistence.model.ERole;
 
@@ -35,6 +36,9 @@ public class UserService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
 
     public User createUser(UserDTO userDTO) throws IllegalArgumentException{
@@ -54,9 +58,9 @@ public class UserService {
 
 
         sendWelcomeEmail(user.getEmail(), initialPassword);
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         //initial login count 0 & is_active status true
-        user.setLoginCount(0);
+        user.setLoginCount(-1);
         user.setActive(true);
 
         List<Role> roles = processRoles(userDTO.getRoles());
@@ -69,7 +73,7 @@ public class UserService {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(email);
         mailMessage.setSubject("Welcome to Donation Manager");
-        mailMessage.setText("Welcome to our application, Now your personal information will be stolen and a clone will replace you in the society! Your initial password is: " + initialPassword);
+        mailMessage.setText("Welcome to our Donation Manager MSG! Your initial password is: " + initialPassword + "\n Your password will need to be changed at the initial Login.");
         try {
             javaMailSender.send(mailMessage);
         }catch (MailException e){
