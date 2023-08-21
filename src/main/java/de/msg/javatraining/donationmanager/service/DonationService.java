@@ -42,10 +42,13 @@ public class DonationService {
         }
     }
 
-    public void approveDonation(Donation donation, User userThatAprroved) {
+    public Donation approveDonation(Donation donation, User userThatAprroved) {
        donation.setApproved(true);
        donation.setApprovedBy(userThatAprroved);
        donation.setApproveDate(LocalDate.now());
-       donationRepositoryJPA.save(donation);
+
+
+       return donationRepositoryJPA.save(donation);
+
     }
 }

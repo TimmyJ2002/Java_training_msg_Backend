@@ -29,16 +29,16 @@ public class DonationController {
 
 
     @PutMapping("/approve/{donation_id}/{approvedby_id}")
-    public Donation approveDonation(@PathVariable(name = "donation_id") Long donationId, @PathVariable(name = "approvedby_id") Long aprrovedById) {
+    public ResponseEntity<Donation> approveDonation(@PathVariable(name = "donation_id") Long donationId, @PathVariable(name = "approvedby_id") Long aprrovedById) {
         Donation donation = donationService.findById(donationId);
         User approvedBy = userService.findById(aprrovedById);
 
         if (!Objects.equals(donation.getCreatedBy().getId(), aprrovedById)){
-            donationService.approveDonation(donation, approvedBy);
-            return donation;
+            return new ResponseEntity<>(donationService.approveDonation(donation,approvedBy), HttpStatus.OK);
+
         }
         else {
-            return null;
+            return new ResponseEntity<>(donation, HttpStatus.I_AM_A_TEAPOT);
         }
     }
 }
