@@ -1,6 +1,7 @@
 package de.msg.javatraining.donationmanager.persistence.repository.impl;
 
 import de.msg.javatraining.donationmanager.persistence.model.Campaign;
+import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.repository.CampaignRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -89,5 +90,23 @@ public class CampaignRepositoryImpl implements CampaignRepository {
         } catch (NoResultException e) {
             return null; // Return null if no matching campaign is found
         }
+    }
+
+    @Override
+    public Boolean existsByName(String name) {
+        TypedQuery<Long> query = entityManager.createQuery("SELECT COUNT(c) FROM Campaign c WHERE c.name = :name", Long.class);
+        query.setParameter("name", name);
+        Long count = query.getSingleResult();
+        return count > 0;
+    }
+
+    @Override
+    public Boolean existsDonations(List<Donation> donationList) {
+        for (Donation donation : donationList) {
+            if (donation != null) {
+                return true;
+            }
+        }
+        return false;
     }
 }

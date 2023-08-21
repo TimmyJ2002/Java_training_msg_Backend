@@ -59,10 +59,10 @@ public class CampaignController {
     public ResponseEntity<?> deleteCampaign(@PathVariable Long id) {
         try {
           campaignService.delete(id);
-            return new ResponseEntity<>("Campaign deleted.", HttpStatus.OK);
+            return new ResponseEntity<>(id, HttpStatus.OK);
         }
         catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Campaign could not be deleted because it has approved donations.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Campaign could not be deleted because it has approved donations.", HttpStatus.BAD_REQUEST);
         }
     }
 }
