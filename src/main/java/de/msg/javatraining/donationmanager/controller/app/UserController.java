@@ -51,7 +51,7 @@ import java.util.List;
 
     @PutMapping("/activate/{id}")
     public ResponseEntity<String> activateDeactivateUser(@PathVariable("id") Long id){
-        userService.activateDeacticateUser(id);
+        userService.activateDeactivateUser(id);
         return new ResponseEntity<>("Toggled Activation ",HttpStatus.OK);
     }
 
