@@ -43,11 +43,11 @@ public class User {
 	@Column(name="mobilenumber")
 	private String mobileNumber;
 
-	@Column(name="isactive")
+			@Column(name="isactive")
 	private boolean isActive;
 
 	@Column(name="logincount")
-	private int loginCount;
+	private int logincount;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(	name = "user_role",
@@ -100,7 +100,7 @@ public class User {
 		this.email = email;
 		this.mobileNumber = mobileNumber;
 		this.isActive = isActive;
-		this.loginCount = loginCount;
+		this.logincount = loginCount;
 		this.roles = roles;
 //		this.campaigns = campaigns;
 //		this.donationListCreated = donationListCreated;
@@ -171,7 +171,7 @@ public class User {
 	public void setMobileNumber(String mobileNumber) {
 		this.mobileNumber = mobileNumber;
 	}
-	public boolean isActive() {
+	public boolean getIsActive() {
 		return isActive;
 	}
 	public void setActive(boolean active) {
@@ -179,11 +179,11 @@ public class User {
 	}
 
 	public int getLoginCount() {
-		return loginCount;
+		return logincount;
 	}
 
 	public void setLoginCount(int loginCount) {
-		this.loginCount = loginCount;
+		this.logincount = loginCount;
 	}
 
 //	public List<Campaign> getCampaigns() {

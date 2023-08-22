@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.List;
-
 @Repository
 @Transactional
 public class DonationRepositoryImpl implements DonationRepository {

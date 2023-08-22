@@ -47,6 +47,10 @@ public class DonatorRepositoryImpl implements DonatorRepository {
     public Donator findByID(long DonatorID) {
         return em.find(Donator.class, DonatorID);
     }
+    public boolean existsById(long id) {
+        return em.find(Donator.class, id) != null;
+    }
+
 
     @Override
     public void editDonator(long id, Donator d){
