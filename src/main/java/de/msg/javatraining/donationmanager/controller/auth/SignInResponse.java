@@ -61,6 +61,14 @@ public class SignInResponse {
 		this.username = username;
 	}
 
+	public int getLoginCount() {
+		return loginCount;
+	}
+
+	public void setLoginCount(int loginCount) {
+		this.loginCount = loginCount;
+	}
+
 	public List<String> getRoles() {
 		return roles;
 	}

@@ -1,6 +1,8 @@
 package de.msg.javatraining.donationmanager.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
@@ -22,12 +24,12 @@ public class Donation {
     @NonNull
     private String currency;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="campaign_id")
     @JsonBackReference
     private Campaign campaign;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="createdby_id")
     @JsonBackReference
     private User createdBy;
@@ -35,7 +37,7 @@ public class Donation {
     @Column(name="createdDate")
     private LocalDate createdDate;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="donator_id")
     @JsonBackReference
     private Donator donator;
@@ -43,7 +45,7 @@ public class Donation {
     @Column(name="approved")
     private boolean approved;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="approvedby_id")
     @JsonBackReference
     private User approvedBy;

@@ -12,17 +12,23 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepositoryInterface extends JpaRepository<User, Long> {
-  Optional<User> findByUsername(String username);
+  User findByUsername(String username);
 
   Boolean existsByUsername(String username);
 
   Boolean existsByEmail(String email);
 
-  @Transactional
-  @Modifying // It means it's not a select statement
-  @Query(value = "UPDATE user set password = :password", nativeQuery = true)
-  void changeUserPassword(@Param("password") String password);
+//  @Transactional
+//  @Modifying
+//  @Query(value = "UPDATE user set password = :password", nativeQuery = true)
+//  void changeUserPassword(@Param("password") String password);
 
+  @Modifying
+  @Query("UPDATE User u SET u.password = :newPassword WHERE u.id = :userId")
+  void changeUserPassword(@Param("userId") Long userId, @Param("newPassword") int newPassword);
+  @Modifying
+  @Query("UPDATE User u SET u.logincount = :newLoginCount WHERE u.id = :userId")
+  void updateLoginCount(@Param("userId") Long userId, @Param("newLoginCount") int newLoginCount);
   boolean existsByMobileNumber(String mobileNumber);
 
 

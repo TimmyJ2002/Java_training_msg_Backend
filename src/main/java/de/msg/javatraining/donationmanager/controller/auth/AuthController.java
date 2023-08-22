@@ -2,12 +2,16 @@ package de.msg.javatraining.donationmanager.controller.auth;
 
 
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
+import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.persistence.repository.RoleRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.service.UserDetailsImpl;
 import de.msg.javatraining.donationmanager.service.UserService;
+import io.micrometer.common.lang.NonNull;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -44,6 +49,9 @@ public class AuthController {
   @Autowired
   UserService userService;
 
+  @Autowired
+  WebSecurityConfig webSecurityConfig;
+
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
     Authentication authentication = authenticationManager
@@ -62,6 +70,8 @@ public class AuthController {
     System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
     String jwt = jwtUtils.generateJwtToken(userDetails);
 
+    System.out.println("Token:" + jwt);
+
     List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
         .collect(Collectors.toList());
 
@@ -70,28 +80,49 @@ public class AuthController {
   }
 
   @PostMapping("/change-password")
-  public ResponseEntity<String> changePassword(@RequestBody RequestChangePassword requestChangePassword) throws Exception {
+  public ResponseEntity<String> changeUserPassword(@RequestBody RequestChangePassword requestChangePassword, HttpServletRequest request) {
+    try {
+      String jwt = userService.parseJwt(request);
+      String username = jwtUtils.getUserNameFromJwtToken(jwt);
+      System.out.println("Token:" + jwt);
+      User optionalUser = userService.findUserByUsername(username);
 
-    User user = new User();
-    user.setId(requestChangePassword.getUserId());
-    user.setPassword(requestChangePassword.getOldPassword());
+      if (optionalUser != null) {
+        User user = optionalUser;
+        String newPassword = requestChangePassword.getNewPassword();
 
-    int check = userService.changeUserPassword(user, requestChangePassword.getNewPassword());
+        userService.changeUserPassword(user.getId(), newPassword);
 
-    if(check == 1){
-      return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Password changed successfully\"}");
+        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Password changed successfully\"}");
+      } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"User not found\"}");
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
     }
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Password change failed\"}");
   }
 
-
   @PutMapping("/update-login-count")
-  public ResponseEntity<String> updateLoginCount(
-          @RequestParam Long userId,
-          @RequestParam int newLoginCount
-  ) {
-    userService.updateLoginCount(userId, newLoginCount);
-    return ResponseEntity.ok("Login count updated successfully");
+  public ResponseEntity<String> updateLoginCount(@RequestBody RequestLogincountUpdate requestLogincountUpdate, HttpServletRequest request) {
+    try {
+      String jwt = userService.parseJwt(request);
+      String username = jwtUtils.getUserNameFromJwtToken(jwt);
+      System.out.println(jwt);
+      User optionalUser = userService.findUserByUsername(username);
+
+      if (optionalUser != null) {
+        User user = optionalUser;
+        int newLoginCount = requestLogincountUpdate.getNewLoginCount();
+
+        userService.updateLoginCount(user.getId(), newLoginCount);
+
+        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Login count updated successfully\"}");
+      } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"User not found\"}");
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
+    }
   }
 
   @GetMapping("/get-username")
@@ -105,7 +136,6 @@ public class AuthController {
     System.out.println("Received Authorization header: " + authorizationHeader);
 
     // Extract token from Authorization header
-//    String token = authorizationHeader.substring("Bearer ".length());
     String token = authorizationHeader.substring("Bearer ".length());
     System.out.println("Extracted Token: " + token);
 
@@ -121,7 +151,6 @@ public class AuthController {
   @GetMapping("/get-username")
   public String getUsernameFromToken(@RequestParam String token) {
     String username = jwtUtils.getUserNameFromJwtToken(token);
-//    return ResponseEntity.ok(username);
     return username;
   }
 

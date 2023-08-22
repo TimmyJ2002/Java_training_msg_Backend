@@ -37,9 +37,8 @@ public class RoleRightRepoInterfaceImpl implements RoleRightRepoInterface {
 
     @Override
     public List<Role_Right> findAll() {
+        //return em.createQuery("select rr from Role_Right rr", Role_Right.class).getResultList();
         return em.createQuery("select rr from Role_Right rr", Role_Right.class).getResultList();
-//        Query query = em.createNativeQuery("SELECT * FROM roleRight");
-//        return query.getResultList();
     }
 
     @Override
@@ -47,6 +46,11 @@ public class RoleRightRepoInterfaceImpl implements RoleRightRepoInterface {
         TypedQuery<Role_Right> query = em.createQuery(
                 "SELECT rr FROM Role_Right rr WHERE rr.role.id = '" + role.getId() + "' AND rr.roleRight = '" + right + "'", Role_Right.class);
         return query.getSingleResult();
+    }
+
+    @Override
+    public void update(Role role) {
+        em.merge(role);
     }
 
 

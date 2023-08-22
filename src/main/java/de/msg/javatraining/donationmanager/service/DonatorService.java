@@ -1,5 +1,6 @@
 package de.msg.javatraining.donationmanager.service;
 
+import de.msg.javatraining.donationmanager.exception.InvalidDataException;
 import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Donator;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.DonatorRepositoryImpl;
@@ -17,8 +18,9 @@ public class DonatorService {
     @Autowired
     private DonatorRepositoryImpl donatorRepository;
 
-    public void saveDonator(Donator d){
+    public void saveDonator(Donator d) throws InvalidDataException{
         try {
+            validateDonator(d);
             donatorRepository.saveDonator(d);
         }
         catch(UnexpectedRollbackException e){
@@ -31,19 +33,31 @@ public class DonatorService {
     }
 
 
-    public Optional<Donator> findById(int id) {
-        return Optional.ofNullable(donatorRepository.findByID(id));
+    public Donator findById(int id) {
+        return donatorRepository.findByID(id);
     }
 
     public Donator findById(long id) {
         return donatorRepository.findByID(id);
 
     }
-    public void editDonator(long id, Donator d){
+    public void editDonator(long id, Donator d) throws InvalidDataException, NullPointerException{
+        validateDonator(d);
+        exists(id);
         donatorRepository.editDonator(id,d);
     }
 
     public void specialDeleteDonator(Donator d){
         donatorRepository.specialDeleteDonator(d);
+    }
+    public boolean validateDonator(Donator d){
+        if( d.getLastName().equals("") || d.getFirstName().equals(""))
+            throw new InvalidDataException("Firstname or lastname field is empty.");
+        return true;
+    }
+    public boolean exists(long id) {
+        if(!donatorRepository.existsById(id))
+            throw new NullPointerException();
+        return true;
     }
 }

@@ -1,5 +1,6 @@
 package de.msg.javatraining.donationmanager.controller.app;
 
+import de.msg.javatraining.donationmanager.exception.InvalidDataException;
 import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Donator;
 import de.msg.javatraining.donationmanager.persistence.modelDTO.DonatorDTO;
@@ -8,6 +9,8 @@ import de.msg.javatraining.donationmanager.persistence.repository.DonatorReposit
 import de.msg.javatraining.donationmanager.persistence.repository.impl.DonatorRepositoryImpl;
 import de.msg.javatraining.donationmanager.service.DonatorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
@@ -46,20 +49,45 @@ public class DonatorController {
         return donatorMapper.donatorToDto(donatorService.findById(id));
     }
 
+
     @PostMapping("/donator/edit/{id}")
-    public void editDonator(@PathVariable  int id, @RequestBody DonatorDTO c){
-        donatorService.editDonator(id,donatorMapper.dtoToDonator(c));
+    @ResponseBody
+    public ResponseEntity<?> editDonator(@PathVariable  int id, @RequestBody DonatorDTO c){
+        try {
+            donatorService.editDonator(id,donatorMapper.dtoToDonator(c));
+            return new ResponseEntity<>(c, HttpStatus.OK);
+        }
+        catch (InvalidDataException e ) {
+            return new ResponseEntity<>("Donator mandatory fields are empty", HttpStatus.BAD_REQUEST);
+        }
+        catch (NullPointerException e){
+            return new ResponseEntity<>("Id does not exist", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/donator/create")
-    public void createDonator(@RequestBody DonatorDTO c){
-        donatorService.saveDonator(donatorMapper.dtoToDonator(c));
+    @ResponseBody
+    public ResponseEntity<?> createDonator(@RequestBody DonatorDTO c){
+        try {
+            donatorService.saveDonator(donatorMapper.dtoToDonator(c));
+            return new ResponseEntity<>(c, HttpStatus.OK);
+        }
+        catch (InvalidDataException e) {
+            return new ResponseEntity<>("Donator mandatory fields are empty", HttpStatus.BAD_REQUEST);
+
+        }
     }
     @PostMapping("/donator/delete")
-    public void deleteDonator(@RequestBody DonatorDTO c){
-        Donator d = donatorMapper.dtoToDonator(c);
-        d = donatorService.findById(d.getId());
-        System.out.println(c.getId() + " " + c.getLastName() + " " + c.getFirstName());
-        donatorService.specialDeleteDonator(d);
+    @ResponseBody
+    public ResponseEntity<?> deleteDonator(@RequestBody DonatorDTO c){
+        try {
+            Donator d = donatorMapper.dtoToDonator(c);
+            d = donatorService.findById(d.getId());
+            donatorService.specialDeleteDonator(d);
+            return new ResponseEntity<>(c, HttpStatus.OK);
+        }
+        catch (NullPointerException e){
+            return new ResponseEntity<>("Id does not exist", HttpStatus.BAD_REQUEST);
+        }
     }
 }

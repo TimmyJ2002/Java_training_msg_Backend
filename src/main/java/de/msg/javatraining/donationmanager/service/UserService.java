@@ -1,18 +1,25 @@
 package de.msg.javatraining.donationmanager.service;
 
+import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.exception.*;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.*;
+import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.RoleRepositoryInterfaceImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import de.msg.javatraining.donationmanager.persistence.model.ERole;
+import org.springframework.util.StringUtils;
 
 
 import java.util.*;
@@ -35,6 +42,8 @@ public class UserService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     public User createUser(UserDTO userDTO) throws IllegalArgumentException{
@@ -54,9 +63,9 @@ public class UserService {
 
 
         sendWelcomeEmail(user.getEmail(), initialPassword);
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         //initial login count 0 & is_active status true
-        user.setLoginCount(0);
+        user.setLoginCount(-1);
         user.setActive(true);
 
         List<Role> roles = processRoles(userDTO.getRoles());
@@ -69,7 +78,7 @@ public class UserService {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(email);
         mailMessage.setSubject("Welcome to Donation Manager");
-        mailMessage.setText("Welcome to our application, Now your personal information will be stolen and a clone will replace you in the society! Your initial password is: " + initialPassword);
+        mailMessage.setText("Welcome to our Donation Manager MSG! Your initial password is: " + initialPassword + "\n Your password will need to be changed at the initial Login.");
         try {
             javaMailSender.send(mailMessage);
         }catch (MailException e){
@@ -137,33 +146,37 @@ public class UserService {
         return true;
 
     }
-    //TODO: implement method
-    private boolean checkPassword(Long userId, String password){
-        return true;
-    }
 
-    public int changeUserPassword(User user, String newPassword) throws Exception {
-        Long userId = user.getId();
-        String userPassword = user.getPassword();
 
-        boolean checkUserPassword = checkPassword(userId, userPassword);
+    @Transactional
+    public void changeUserPassword(Long userId, String newPassword) {
+        Optional<User> optionalUser = userRepository.findById(userId);
 
-        if(checkUserPassword) {
-            userRepository.changeUserPassword(webSecurityConfig.passwordEncoder().encode(newPassword));
-            return 1;
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
         }
-        return 0;
     }
 
+    @Transactional
     public void updateLoginCount(Long userId, int newLoginCount) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
             user.setLoginCount(newLoginCount);
             userRepository.save(user);
-        } else {
-            System.out.println("FAILED TO UPDATE LOGINCOUNT!");
         }
+    }
+
+    public String parseJwt(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+
+        if (StringUtils.hasText(headerAuth)) {
+            return headerAuth.substring(0, headerAuth.length());
+        }
+        return null;
     }
 
     public User findById(Long id) {
@@ -244,7 +257,7 @@ public class UserService {
         return mapUserToUserDTO(user);
     }
 
-    public Optional<User> findUserByUsername(String username) {
+    public User findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
