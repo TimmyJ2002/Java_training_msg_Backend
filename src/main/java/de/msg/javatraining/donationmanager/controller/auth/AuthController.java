@@ -79,10 +79,10 @@ public class AuthController {
       String jwt = userService.parseJwt(request);
       String username = jwtUtils.getUserNameFromJwtToken(jwt);
       System.out.println("Token:" + jwt);
-      Optional<User> optionalUser = userService.findUserByUsername(username);
+      User optionalUser = userService.findUserByUsername(username);
 
-      if (optionalUser.isPresent()) {
-        User user = optionalUser.get();
+      if (optionalUser != null) {
+        User user = optionalUser;
         String newPassword = requestChangePassword.getNewPassword();
 
         userService.changeUserPassword(user.getId(), newPassword);
@@ -102,10 +102,10 @@ public class AuthController {
       String jwt = userService.parseJwt(request);
       String username = jwtUtils.getUserNameFromJwtToken(jwt);
       System.out.println(jwt);
-      Optional<User> optionalUser = userService.findUserByUsername(username);
+      User optionalUser = userService.findUserByUsername(username);
 
-      if (optionalUser.isPresent()) {
-        User user = optionalUser.get();
+      if (optionalUser != null) {
+        User user = optionalUser;
         int newLoginCount = requestLogincountUpdate.getNewLoginCount();
 
         userService.updateLoginCount(user.getId(), newLoginCount);

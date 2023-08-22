@@ -257,11 +257,6 @@ public class UserService {
         return mapUserToUserDTO(user);
     }
 
-    public Optional<User> findUserByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }

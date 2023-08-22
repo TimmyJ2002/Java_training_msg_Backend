@@ -70,6 +70,7 @@ public class DonationController {
     public ResponseEntity<?> addDonation(@NonNull HttpServletRequest request, @RequestBody DonationRequestWrapper donationRequestWrapper) {
 
         try {
+            System.out.println("ok");
             String jwt = parseJwt(request);
             String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
@@ -91,6 +92,8 @@ public class DonationController {
 
             donation.setNotes(donationRequestWrapper.getNotes());
             donationService.addDonation(donation);
+            System.out.println("ok");
+
 
             return new ResponseEntity<>(HttpStatus.OK);
 
