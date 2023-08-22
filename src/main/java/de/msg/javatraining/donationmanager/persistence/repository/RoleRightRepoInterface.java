@@ -14,4 +14,5 @@ public interface RoleRightRepoInterface {
 
     Role_Right findByRoleAndRight(Role role, ERight right);
 
+    void update(Role role);
 }

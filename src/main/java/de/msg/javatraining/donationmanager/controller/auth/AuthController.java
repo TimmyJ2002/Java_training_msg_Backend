@@ -61,6 +61,12 @@ public class AuthController {
 
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+    if (userDetails.getLoginCount() == -1) {
+      return ResponseEntity.status(HttpStatus.OK)
+              .body("{\"message\": \"Password change required\"}");
+    }
+
+
     System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
     String jwt = jwtUtils.generateJwtToken(userDetails);
 
@@ -79,10 +85,10 @@ public class AuthController {
       String jwt = userService.parseJwt(request);
       String username = jwtUtils.getUserNameFromJwtToken(jwt);
       System.out.println("Token:" + jwt);
-      Optional<User> optionalUser = userService.findUserByUsername(username);
+      User optionalUser = userService.findUserByUsername(username);
 
-      if (optionalUser.isPresent()) {
-        User user = optionalUser.get();
+      if (optionalUser != null) {
+        User user = optionalUser;
         String newPassword = requestChangePassword.getNewPassword();
 
         userService.changeUserPassword(user.getId(), newPassword);
@@ -102,10 +108,10 @@ public class AuthController {
       String jwt = userService.parseJwt(request);
       String username = jwtUtils.getUserNameFromJwtToken(jwt);
       System.out.println(jwt);
-      Optional<User> optionalUser = userService.findUserByUsername(username);
+      User optionalUser = userService.findUserByUsername(username);
 
-      if (optionalUser.isPresent()) {
-        User user = optionalUser.get();
+      if (optionalUser != null) {
+        User user = optionalUser;
         int newLoginCount = requestLogincountUpdate.getNewLoginCount();
 
         userService.updateLoginCount(user.getId(), newLoginCount);
@@ -117,6 +123,12 @@ public class AuthController {
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
     }
+  }
+
+  @GetMapping("/get-username")
+  public ResponseEntity<String> getUsernameFromToken(@RequestParam String token) {
+    String username = jwtUtils.getUserNameFromJwtToken(token);
+    return ResponseEntity.ok(username);
   }
 
   @PostMapping("/logout")

@@ -10,4 +10,6 @@ public interface RoleRepositoryInterface {
   void deleteRole(Role r);
   List<Role> findAll();
   Role findByName(ERole name);
+
+  void updateRole(Role updatedRole);
 }

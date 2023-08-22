@@ -33,6 +33,10 @@ public class DonatorService {
     }
 
 
+    public Donator findById(int id) {
+        return donatorRepository.findByID(id);
+    }
+
     public Donator findById(long id) {
         return donatorRepository.findByID(id);
 
