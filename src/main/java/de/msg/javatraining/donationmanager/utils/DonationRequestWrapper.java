@@ -1,6 +1,7 @@
 package de.msg.javatraining.donationmanager.utils;
 
 import de.msg.javatraining.donationmanager.persistence.model.Campaign;
+import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Donator;
 
 public class DonationRequestWrapper {
