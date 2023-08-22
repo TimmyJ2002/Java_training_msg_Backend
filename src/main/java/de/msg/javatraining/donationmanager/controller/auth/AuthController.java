@@ -61,6 +61,8 @@ public class AuthController {
 
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+    User user = userService.findUserByUsername(userDetails.getUsername());
+
     if (userDetails.getLoginCount() == -1) {
       return ResponseEntity.status(HttpStatus.OK)
               .body("{\"message\": \"Password change required\"}");
@@ -68,7 +70,7 @@ public class AuthController {
 
 
     System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
-    String jwt = jwtUtils.generateJwtToken(userDetails);
+    String jwt = jwtUtils.generateJwtToken(userDetails, user);
 
     System.out.println("Token:" + jwt);
 

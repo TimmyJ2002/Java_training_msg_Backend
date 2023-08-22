@@ -1,7 +1,9 @@
 package de.msg.javatraining.donationmanager.config.security;
 
 
+import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.service.UserDetailsServiceImpl;
+import de.msg.javatraining.donationmanager.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
+
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,

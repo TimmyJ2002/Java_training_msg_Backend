@@ -16,11 +16,6 @@ public class Role_Right {
     @Column(length = 64)
     private ERight roleRight;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="role_id")
-    @JsonBackReference
-    private Role role;
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -35,13 +30,5 @@ public class Role_Right {
 
     public void setRoleRight(ERight roleRight) {
         this.roleRight = roleRight;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 }
