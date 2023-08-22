@@ -1,7 +1,7 @@
 package de.msg.javatraining.donationmanager.persistence.model;
 
 import jakarta.persistence.*;
-import org.antlr.v4.runtime.misc.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -14,11 +14,11 @@ public class Donator {
     private Long id;
 
     @Column(name="firstname", nullable = false)
-    @NotNull
+    @NotBlank
     private String firstName;
 
     @Column(name="lastname", nullable = false)
-    @NotNull
+    @NotBlank
     private String lastName;
 
     @Column(name="additionalname")
@@ -65,16 +65,16 @@ public class Donator {
         this.maidenName = maidenName;
     }
 
-    public void setFirstName(@NonNull String firstName) {
+    public void setFirstName(@NotBlank String firstName) {
         this.firstName = firstName;
     }
 
-    @NonNull
+    @NotBlank
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(@NonNull String lastName) {
+    public void setLastName(@NotBlank String lastName) {
         this.lastName = lastName;
     }
 

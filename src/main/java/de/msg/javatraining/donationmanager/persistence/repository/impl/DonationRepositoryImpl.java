@@ -19,4 +19,14 @@ public class DonationRepositoryImpl implements DonationRepository {
     public List<Donation> findAll() {
         return em.createQuery("SELECT d FROM Donation d", Donation.class).getResultList();
     }
+
+    @Override
+    public Donation findById(long id) {
+        return em.find(Donation.class, id);
+    }
+
+    @Override
+    public void deleteDonation(Donation d) {
+        em.remove(d);
+    }
 }

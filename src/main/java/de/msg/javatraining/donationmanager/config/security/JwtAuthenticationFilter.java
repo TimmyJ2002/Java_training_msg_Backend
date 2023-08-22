@@ -26,30 +26,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-//    @Override
-//    protected void doFilterInternal(@NonNull HttpServletRequest request,
-//            @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
-//            throws ServletException, IOException {
-//        try {
-//            String jwt = parseJwt(request);
-//            //check if jwt is valid, if it is valid get the userdetails and set the authenticationcontext
-//            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-//                String username = jwtUtils.getUserNameFromJwtToken(jwt);
-//
-//                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-//                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-//                        userDetails.getAuthorities());
-//                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//
-//                SecurityContextHolder.getContext().setAuthentication(authentication);
-//            }
-//        } catch (Exception e) {
-//            logger.error("Cannot set user authentication: {}", e);
-//        }
-//
-//        filterChain.doFilter(request, response);
-//    }
-
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
@@ -79,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String headerAuth = request.getHeader("Authorization");
 
         if (StringUtils.hasText(headerAuth)) {
-            return headerAuth.substring(0, headerAuth.length());
+            return headerAuth.replace("Bearer ", "");
         }
         return null;
     }

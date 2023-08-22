@@ -1,24 +1,31 @@
 package de.msg.javatraining.donationmanager.service;
 
+import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.exception.*;
-import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserDTO;
+import de.msg.javatraining.donationmanager.persistence.model.DTOs.*;
+import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.RoleRepositoryInterfaceImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import de.msg.javatraining.donationmanager.persistence.model.ERole;
+import org.springframework.util.StringUtils;
 
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.msg.javatraining.donationmanager.persistence.model.DTOs.UserMapper.mapUserDTOToUser;
+import static de.msg.javatraining.donationmanager.persistence.model.DTOs.UserMapper.*;
 
 @Service
 public class UserService {
@@ -35,6 +42,8 @@ public class UserService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     public User createUser(UserDTO userDTO) throws IllegalArgumentException{
@@ -52,11 +61,11 @@ public class UserService {
         String initialPassword = generateInitialPassword();
         user.setPassword(initialPassword);
 
-        System.out.println("ok");
+
         sendWelcomeEmail(user.getEmail(), initialPassword);
-        System.out.println("nu ok");
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         //initial login count 0 & is_active status true
-        user.setLoginCount(0);
+        user.setLoginCount(-1);
         user.setActive(true);
 
         List<Role> roles = processRoles(userDTO.getRoles());
@@ -69,7 +78,7 @@ public class UserService {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(email);
         mailMessage.setSubject("Welcome to Donation Manager");
-        mailMessage.setText("Welcome to our application, Now your personal information will be stolen and a clone will replace you in the society! Your initial password is: " + initialPassword);
+        mailMessage.setText("Welcome to our Donation Manager MSG! Your initial password is: " + initialPassword + "\n Your password will need to be changed at the initial Login.");
         try {
             javaMailSender.send(mailMessage);
         }catch (MailException e){
@@ -137,32 +146,119 @@ public class UserService {
         return true;
 
     }
-    //TODO: implement method
-    private boolean checkPassword(Long userId, String password){
+
+
+    @Transactional
+    public void changeUserPassword(Long userId, String newPassword) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
+    public void updateLoginCount(Long userId, int newLoginCount) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setLoginCount(newLoginCount);
+            userRepository.save(user);
+        }
+    }
+
+    public String parseJwt(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+
+        if (StringUtils.hasText(headerAuth)) {
+            return headerAuth.substring(0, headerAuth.length());
+        }
+        return null;
+    }
+
+    public User findById(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isPresent()) {
+            return userOptional.get();
+        } else {
+            throw new UserNotFoundException("User not found with ID: " + id);
+        }
+    }
+
+    public User updateUser(Long id, UserWithIdDTO userWithIdDTO) throws IllegalArgumentException{
+        validateUserInputForUpdate(id, userWithIdDTO);
+
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isEmpty()) {
+            throw new UserNotFoundException("User with ID " + id + " not found");
+        }
+        User user = existingUser.get();
+
+        if (userWithIdDTO.getFirstName() != null && userWithIdDTO.getFirstName().length() < 255) {
+            user.setFirstName(userWithIdDTO.getFirstName());
+        }
+        if (userWithIdDTO.getLastName() != null && userWithIdDTO.getLastName().length() < 255) {
+            user.setLastName(userWithIdDTO.getLastName());
+
+        }
+        if (userWithIdDTO.getEmail() != null && userWithIdDTO.getEmail().length() < 255) {
+            user.setEmail(userWithIdDTO.getEmail());
+        }
+        if (userWithIdDTO.getMobileNumber() != null && userWithIdDTO.getMobileNumber().length() < 255) {
+            user.setMobileNumber(userWithIdDTO.getMobileNumber());
+        }
+        if (userWithIdDTO.getRoles() != null) {
+            user.setRoles(userWithIdDTO.getRoles());
+        }
+        if (userWithIdDTO.getActive() != null) {
+            user.setActive(userWithIdDTO.getActive());
+        }
+        return userRepository.save(user);
+
+    }
+
+    private boolean validateUserInputForUpdate(Long id, UserWithIdDTO userWithIdDTO) {
+        if (userWithIdDTO.getEmail() != null && !userWithIdDTO.getEmail().isEmpty()) {
+            boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userWithIdDTO.getEmail(), id);
+            if (isEmailExisting) {
+                throw new EmailAlreadyExistsException("Another User with this Email already exists in the database");
+            }
+        }
+
+        if (userWithIdDTO.getMobileNumber() != null && !userWithIdDTO.getMobileNumber().isEmpty()) {
+            // Check if mobile number is already existing
+            boolean isMobileNumberExisting = userRepository.existsByMobileNumberAndIdNot(userWithIdDTO.getMobileNumber(), id);
+            if (isMobileNumberExisting) {
+                throw new MobileNumberAlreadyExistsException("Another User with this mobile number already exists in the database");
+            }
+        }
+
         return true;
     }
 
-    public int changeUserPassword(User user, String newPassword) throws Exception {
-        Long userId = user.getId();
-        String userPassword = user.getPassword();
-
-        boolean checkUserPassword = checkPassword(userId, userPassword);
-
-        if(checkUserPassword) {
-            userRepository.changeUserPassword(webSecurityConfig.passwordEncoder().encode(newPassword));
-            return 1;
-        }
-        return 0;
+    public List<UserWithIdDTO> getAllUsers() {
+       List<User> userList = userRepository.findAll();
+       return userList.stream().map(user -> mapUserToUserWithIdDTO(user)).collect(Collectors.toList());
     }
 
-    public void updateLoginCount(Long userId, int newLoginCount) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setLoginCount(newLoginCount);
-            userRepository.save(user);
-        } else {
-            System.out.println("FAILED TO UPDATE LOGINCOUNT!");
+    public UserDTO activateDeactivateUser(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException("User with ID " + id + " not found");
         }
+        User user = userOptional.get();
+        user.setActive(!user.getIsActive());
+        userRepository.save(user);
+
+        return mapUserToUserDTO(user);
     }
+
+    public Optional<User> findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
 }
