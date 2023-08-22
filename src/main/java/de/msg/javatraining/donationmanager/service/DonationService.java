@@ -4,6 +4,7 @@ import de.msg.javatraining.donationmanager.persistence.model.Campaign;
 import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Donator;
 import de.msg.javatraining.donationmanager.persistence.repository.DonationRepository;
+import jakarta.persistence.NoResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,7 @@ public class DonationService {
     }
 
     public Donation findByID(int ID) {
-        return donationRepositoryInterface.findByID(ID);
+            return donationRepositoryInterface.findByID(ID);
     }
 
 }

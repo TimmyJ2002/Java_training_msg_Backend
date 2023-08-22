@@ -6,6 +6,7 @@ import de.msg.javatraining.donationmanager.persistence.model.Donator;
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.repository.DonationRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
@@ -51,9 +52,13 @@ public class DonationRepositoryImpl implements DonationRepository {
 
     @Override
     public Donation findByID(long ID) {
-        TypedQuery<Donation> query = em.createQuery(
-                "SELECT d FROM Donation d WHERE d.id = " + ID, Donation.class);
-        return query.getSingleResult();
+        try {
+            TypedQuery<Donation> query = em.createQuery(
+                    "SELECT d FROM Donation d WHERE d.id = " + ID, Donation.class);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
 }

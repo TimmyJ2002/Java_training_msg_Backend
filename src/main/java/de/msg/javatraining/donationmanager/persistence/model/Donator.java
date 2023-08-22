@@ -1,11 +1,16 @@
 package de.msg.javatraining.donationmanager.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 @Entity
 @Table(name="donator")
 public class Donator {
@@ -28,6 +33,7 @@ public class Donator {
     private String maidenName;
 
     @OneToMany(
+            fetch = FetchType.EAGER,
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             mappedBy = "donator"
     )

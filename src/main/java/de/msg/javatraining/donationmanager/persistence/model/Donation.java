@@ -1,11 +1,16 @@
 package de.msg.javatraining.donationmanager.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 @Entity
 @Table(name="donation")
 public class Donation {
@@ -21,30 +26,26 @@ public class Donation {
     @NonNull
     private String currency;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="campaign_id")
-    @JsonBackReference
     private Campaign campaign;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="createdby_id")
-    @JsonBackReference
     private User createdBy;
 
     @Column(name="createdDate")
     private LocalDate createdDate;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="donator_id")
-    @JsonBackReference
     private Donator donator;
 
     @Column(name="approved")
     private boolean approved;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="approvedby_id")
-    @JsonBackReference
     private User approvedBy;
 
     @Column(name="approveDate")
