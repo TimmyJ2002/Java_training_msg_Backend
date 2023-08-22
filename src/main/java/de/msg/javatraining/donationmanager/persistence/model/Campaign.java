@@ -8,9 +8,6 @@ import org.springframework.lang.NonNull;
 
 import java.util.List;
 
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 @Entity
 @Table(name="campaign",
         uniqueConstraints = {
