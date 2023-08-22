@@ -148,12 +148,4 @@ public class AuthController {
     return ResponseEntity.ok("{\"message\": \"Logged out successfully\"}");
   }
 
-  @GetMapping("/get-username")
-  public String getUsernameFromToken(@RequestParam String token) {
-    String username = jwtUtils.getUserNameFromJwtToken(token);
-    return username;
-  }
-
-
-
 }
