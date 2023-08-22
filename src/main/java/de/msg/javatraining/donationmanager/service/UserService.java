@@ -9,6 +9,9 @@ import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.RoleRepositoryInterfaceImpl;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
 
     public User createUser(UserDTO userDTO) throws IllegalArgumentException{
@@ -170,6 +176,16 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public void deactivateUser (Long userId, boolean status){
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setActive(status);
+            userRepository.save(user);
+        }
+    }
     public String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
 
@@ -221,6 +237,45 @@ public class UserService {
 
     }
 
+    public User updateUser2(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
+        Long id = user.getId(); // Assuming id is present in the User object
+
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isEmpty()) {
+            throw new UserNotFoundException("User with ID " + id + " not found");
+        }
+
+        User existing = existingUser.get();
+
+        if (user.getFirstName() != null && user.getFirstName().length() < 255) {
+            existing.setFirstName(user.getFirstName());
+        }
+        if (user.getLastName() != null && user.getLastName().length() < 255) {
+            existing.setLastName(user.getLastName());
+        }
+        if (user.getEmail() != null && user.getEmail().length() < 255) {
+            existing.setEmail(user.getEmail());
+        }
+        if (user.getMobileNumber() != null && user.getMobileNumber().length() < 255) {
+            existing.setMobileNumber(user.getMobileNumber());
+        }
+        if (user.getRoles() != null) {
+            existing.setRoles(user.getRoles());
+        }
+        if (user.getIsActive() != existing.isActive()) {
+            existing.setActive(user.getIsActive());
+        }
+
+
+        return userRepository.save(existing);
+    }
+
+
+
     private boolean validateUserInputForUpdate(Long id, UserWithIdDTO userWithIdDTO) {
         if (userWithIdDTO.getEmail() != null && !userWithIdDTO.getEmail().isEmpty()) {
             boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userWithIdDTO.getEmail(), id);
@@ -260,5 +315,6 @@ public class UserService {
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
 
 }
