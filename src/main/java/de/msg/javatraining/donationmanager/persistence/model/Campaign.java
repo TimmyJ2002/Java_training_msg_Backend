@@ -33,6 +33,7 @@ public class Campaign {
             mappedBy = "campaign",
             fetch = FetchType.EAGER
     )
+    @JsonIgnore
     private List<Donation> donationList;
 
     public Campaign() {

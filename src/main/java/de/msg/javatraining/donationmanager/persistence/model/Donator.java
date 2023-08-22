@@ -29,13 +29,6 @@ public class Donator {
     @Column(name="maidenname")
     private String maidenName;
 
-    @OneToMany(
-            fetch = FetchType.EAGER,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            mappedBy = "donator"
-    )
-    private List<Donation> donationList;
-
     @Column(name="isactive")
     private boolean isActive;
 
@@ -79,14 +72,6 @@ public class Donator {
 
     public void setLastName(@NotBlank String lastName) {
         this.lastName = lastName;
-    }
-
-    public List<Donation> getDonationList() {
-        return donationList;
-    }
-
-    public void setDonationList(List<Donation> donationList) {
-        this.donationList = donationList;
     }
 
     public boolean isActive() {
