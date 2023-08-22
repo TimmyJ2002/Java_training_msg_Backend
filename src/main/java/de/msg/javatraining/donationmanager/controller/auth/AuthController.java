@@ -61,6 +61,12 @@ public class AuthController {
 
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+    if (userDetails.getLoginCount() == -1) {
+      return ResponseEntity.status(HttpStatus.OK)
+              .body("{\"message\": \"Password change required\"}");
+    }
+
+
     System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
     String jwt = jwtUtils.generateJwtToken(userDetails);
 
@@ -117,6 +123,12 @@ public class AuthController {
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
     }
+  }
+
+  @GetMapping("/get-username")
+  public ResponseEntity<String> getUsernameFromToken(@RequestParam String token) {
+    String username = jwtUtils.getUserNameFromJwtToken(token);
+    return ResponseEntity.ok(username);
   }
 
   @PostMapping("/logout")
