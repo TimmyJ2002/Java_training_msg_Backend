@@ -109,4 +109,13 @@ public class CampaignRepositoryImpl implements CampaignRepository {
         }
         return false;
     }
+
+    @Override
+    public Boolean existsByNameAndNotId(String name, Long id) {
+        TypedQuery<Long> query = entityManager.createQuery("SELECT COUNT(c) FROM Campaign c WHERE c.name = :name AND c.id <> :id", Long.class);
+        query.setParameter("name", name);
+        query.setParameter("id", id);
+        Long count = query.getSingleResult();
+        return count > 0;
+    }
 }

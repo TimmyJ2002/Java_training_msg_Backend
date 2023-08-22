@@ -16,4 +16,5 @@ public interface CampaignRepository{
     Campaign findByName(String name);
     Boolean existsByName(String name);
     Boolean existsDonations(List<Donation> donationList);
+    Boolean existsByNameAndNotId(String name, Long id);
 }
