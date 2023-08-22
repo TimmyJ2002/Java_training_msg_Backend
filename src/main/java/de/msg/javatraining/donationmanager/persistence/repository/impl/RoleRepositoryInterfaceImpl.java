@@ -40,4 +40,11 @@ public class RoleRepositoryInterfaceImpl implements RoleRepositoryInterface {
         return query.getSingleResult();
     }
 
+    @Override
+    public void updateRole(Role updatedRole) {
+        Role oldRole = em.find(Role.class, updatedRole.getId());
+        oldRole.setRights(updatedRole.getRights());
+    }
+
+
 }

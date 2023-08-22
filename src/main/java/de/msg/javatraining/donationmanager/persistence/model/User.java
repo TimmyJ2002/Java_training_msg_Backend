@@ -1,6 +1,7 @@
 package de.msg.javatraining.donationmanager.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
@@ -23,6 +24,7 @@ public class User {
 	@Column(name="username")
 	private String username;
 
+	@JsonIgnore
 	@Column(name="password")
 	private String password;
 

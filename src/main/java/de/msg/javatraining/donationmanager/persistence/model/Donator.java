@@ -1,5 +1,7 @@
 package de.msg.javatraining.donationmanager.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.lang.NonNull;
@@ -28,6 +30,7 @@ public class Donator {
     private String maidenName;
 
     @OneToMany(
+            fetch = FetchType.EAGER,
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             mappedBy = "donator"
     )

@@ -1,6 +1,7 @@
 package de.msg.javatraining.donationmanager.persistence.repository.impl;
 
 import de.msg.javatraining.donationmanager.persistence.model.Campaign;
+import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.repository.CampaignRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -53,9 +54,20 @@ public class CampaignRepositoryImpl implements CampaignRepository {
     }
 
     @Override
-    public void delete(Campaign campaign) {
-
-        entityManager.remove(campaign);
+    public Object delete(Long id) {
+    Campaign existingCampaign = entityManager.find(Campaign.class, id);
+    if (existingCampaign != null) {
+        TypedQuery<Long> query = entityManager.createQuery("SELECT COUNT(d) FROM Donation d WHERE d.campaign.id = :id", Long.class);
+        query.setParameter("id", id);
+        Long donationsCount = query.getSingleResult();
+        if (donationsCount == 0) {
+            entityManager.remove(existingCampaign);
+            return null;
+        } else {
+            throw new IllegalArgumentException("Campaign has paid donations and cannot be deleted.");
+        }
+    }
+    throw new IllegalArgumentException("Campaign doesnt exist.");
     }
 
     @Override
@@ -73,11 +85,37 @@ public class CampaignRepositoryImpl implements CampaignRepository {
         TypedQuery<Campaign> query = entityManager.createQuery(
                 "SELECT c FROM Campaign c WHERE c.name = :name", Campaign.class);
         query.setParameter("name", name); // Bind the parameter
-
         try {
             return query.getSingleResult();
         } catch (NoResultException e) {
             return null; // Return null if no matching campaign is found
         }
+    }
+
+    @Override
+    public Boolean existsByName(String name) {
+        TypedQuery<Long> query = entityManager.createQuery("SELECT COUNT(c) FROM Campaign c WHERE c.name = :name", Long.class);
+        query.setParameter("name", name);
+        Long count = query.getSingleResult();
+        return count > 0;
+    }
+
+    @Override
+    public Boolean existsDonations(List<Donation> donationList) {
+        for (Donation donation : donationList) {
+            if (donation != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean existsByNameAndNotId(String name, Long id) {
+        TypedQuery<Long> query = entityManager.createQuery("SELECT COUNT(c) FROM Campaign c WHERE c.name = :name AND c.id <> :id", Long.class);
+        query.setParameter("name", name);
+        query.setParameter("id", id);
+        Long count = query.getSingleResult();
+        return count > 0;
     }
 }
