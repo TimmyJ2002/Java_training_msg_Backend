@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -67,7 +68,7 @@ public class DonationService {
 //       donationRepositoryJPA.save(donation);
 //    }
 
-    public void approveDonation(HttpServletRequest request, Long donationId) throws ChangeSetPersister.NotFoundException {
+    public void approveDonation(HttpServletRequest request, Long donationId) throws Exception {
         String jwt = parseJwt(request);
         String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
@@ -75,6 +76,9 @@ public class DonationService {
                 .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
         Donation donation = findById(donationId);
 
+        if (Objects.equals(approvedByUser.getId(), donation.getCreatedBy().getId())){
+            throw new Exception("Donations can't be approved by the user who created them");
+        }
         if (donation != null) {
             donation.setApproved(true);
             donation.setApprovedBy(approvedByUser);

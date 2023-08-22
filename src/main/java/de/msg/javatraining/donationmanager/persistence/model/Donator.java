@@ -2,7 +2,6 @@ package de.msg.javatraining.donationmanager.persistence.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.lang.NonNull;
 
 import java.util.List;

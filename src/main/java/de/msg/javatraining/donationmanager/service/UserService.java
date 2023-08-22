@@ -4,12 +4,15 @@ import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.exception.*;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.*;
+import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.RoleRepositoryInterfaceImpl;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -40,12 +43,7 @@ public class UserService {
     private JavaMailSender javaMailSender;
 
     @Autowired
-<<<<<<< Updated upstream
     private PasswordEncoder passwordEncoder;
-=======
-    private JwtUtils jwtUtils;
->>>>>>> Stashed changes
-
 
 
     public User createUser(UserDTO userDTO) throws IllegalArgumentException{
@@ -148,39 +146,37 @@ public class UserService {
         return true;
 
     }
-    //TODO: implement method
-    private boolean checkPassword(Long userId, String password){
-        return true;
-    }
 
-    //TODO: implement method
-    private boolean checkLogincount(Long userId, Integer logincount){
-        return true;
-    }
 
-    public int changeUserPassword(User user, String newPassword) throws Exception {
-        Long userId = user.getId();
-        String userPassword = user.getPassword();
+    @Transactional
+    public void changeUserPassword(Long userId, String newPassword) {
+        Optional<User> optionalUser = userRepository.findById(userId);
 
-        boolean checkUserPassword = checkPassword(userId, userPassword);
-
-        if(checkUserPassword) {
-            userRepository.changeUserPassword(webSecurityConfig.passwordEncoder().encode(newPassword));
-            return 1;
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
         }
-        return 0;
     }
 
-    public int updateLoginCount(User user, int newLoginCount) throws Exception {
-        Long userId = user.getId();
+    @Transactional
+    public void updateLoginCount(Long userId, int newLoginCount) {
+        Optional<User> optionalUser = userRepository.findById(userId);
 
-        boolean checkUserLogincount = checkLogincount(userId, newLoginCount);
-
-        if(checkUserLogincount) {
-            userRepository.changeUserLogincount(newLoginCount);
-            return 1;
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setLoginCount(newLoginCount);
+            userRepository.save(user);
         }
-        return 0;
+    }
+
+    public String parseJwt(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+
+        if (StringUtils.hasText(headerAuth)) {
+            return headerAuth.substring(0, headerAuth.length());
+        }
+        return null;
     }
 
     public User findById(Long id) {

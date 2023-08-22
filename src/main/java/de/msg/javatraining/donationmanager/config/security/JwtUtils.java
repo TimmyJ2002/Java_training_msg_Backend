@@ -55,12 +55,6 @@ public class JwtUtils {
 
     return false;
   }
-
-//  public JwtBuilder invalidateToken (String username) {
-//    return Jwts.builder().setSubject(username).setIssuedAt(new Date())
-//            .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs));
-//  }
-
   public void revokeToken(String token) {
     revokedTokens.add(token);
   }

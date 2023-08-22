@@ -2,6 +2,7 @@ package de.msg.javatraining.donationmanager.controller.auth;
 
 
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
+import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.persistence.repository.RoleRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.model.User;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -47,6 +49,9 @@ public class AuthController {
   @Autowired
   UserService userService;
 
+  @Autowired
+  WebSecurityConfig webSecurityConfig;
+
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
     Authentication authentication = authenticationManager
@@ -56,14 +61,10 @@ public class AuthController {
 
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-    if (userDetails.getLoginCount() == -1) {
-      return ResponseEntity.status(HttpStatus.OK)
-              .body("{\"message\": \"Password change required\", \"loginCount\": -1}");
-    }
-
-
     System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
     String jwt = jwtUtils.generateJwtToken(userDetails);
+
+    System.out.println("Token:" + jwt);
 
     List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
         .collect(Collectors.toList());
@@ -73,33 +74,48 @@ public class AuthController {
   }
 
   @PostMapping("/change-password")
-  public ResponseEntity<String> changePassword(@RequestBody RequestChangePassword requestChangePassword) throws Exception {
+  public ResponseEntity<String> changeUserPassword(@RequestBody RequestChangePassword requestChangePassword, HttpServletRequest request) {
+    try {
+      String jwt = userService.parseJwt(request);
+      String username = jwtUtils.getUserNameFromJwtToken(jwt);
+      System.out.println("Token:" + jwt);
+      Optional<User> optionalUser = userService.findUserByUsername(username);
 
-    User user = new User();
-    user.setPassword(requestChangePassword.getOldPassword());
+      if (optionalUser.isPresent()) {
+        User user = optionalUser.get();
+        String newPassword = requestChangePassword.getNewPassword();
 
-    int check = userService.changeUserPassword(user, requestChangePassword.getNewPassword());
+        userService.changeUserPassword(user.getId(), newPassword);
 
-    if(check == 1){
-      return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Password changed successfully\"}");
+        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Password changed successfully\"}");
+      } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"User not found\"}");
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
     }
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Password change failed\"}");
   }
 
-
   @PutMapping("/update-login-count")
-  public ResponseEntity<String> updateLoginCount(@RequestBody RequestLogincountUpdate requestLogincountUpdate) throws Exception {
+  public ResponseEntity<String> updateLoginCount(@RequestBody RequestLogincountUpdate requestLogincountUpdate, HttpServletRequest request) {
+    try {
+      String jwt = userService.parseJwt(request);
+      String username = jwtUtils.getUserNameFromJwtToken(jwt);
+      System.out.println(jwt);
+      Optional<User> optionalUser = userService.findUserByUsername(username);
 
-    User user = new User();
-    user.setLoginCount(requestLogincountUpdate.newLoginCount);
+      if (optionalUser.isPresent()) {
+        User user = optionalUser.get();
+        int newLoginCount = requestLogincountUpdate.getNewLoginCount();
 
-    int check = userService.updateLoginCount(user, requestLogincountUpdate.newLoginCount);
-    if(check == 1) {
-      return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Login count updated successfully\"}");
-    }
-    else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Logincount update failed\"}");
+        userService.updateLoginCount(user.getId(), newLoginCount);
 
+        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Login count updated successfully\"}");
+      } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"User not found\"}");
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
     }
   }
 
