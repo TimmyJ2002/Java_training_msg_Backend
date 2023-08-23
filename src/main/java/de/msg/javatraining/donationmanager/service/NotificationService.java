@@ -35,10 +35,10 @@ public class NotificationService {
         String jwt = parseJwt(request);
         String userName = jwtUtils.getUserNameFromJwtToken(jwt);
 
-        Optional<User> recipicentUser = userService.findUserByUsername(userName);
+        User recipicentUser = userService.findUserByUsername(userName);
 
         // BEFORE || After getting user |>
-        List<Notification> notifications = notificationRepository.findByNotificationRecieverId(recipicentUser.get().getId());
+        List<Notification> notifications = notificationRepository.findByNotificationRecieverId(recipicentUser.getId());
 
 //        LocalDate hardcodedDate = LocalDate.of(2023, 8, 22);
 //        NotificationDTO test = new NotificationDTO(30, "TEST", hardcodedDate, false);

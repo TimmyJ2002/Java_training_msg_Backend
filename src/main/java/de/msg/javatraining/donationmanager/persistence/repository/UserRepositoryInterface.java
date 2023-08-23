@@ -27,7 +27,7 @@ public interface UserRepositoryInterface extends JpaRepository<User, Long> {
   @Query("UPDATE User u SET u.password = :newPassword WHERE u.id = :userId")
   void changeUserPassword(@Param("userId") Long userId, @Param("newPassword") int newPassword);
   @Modifying
-  @Query("UPDATE User u SET u.logincount = :newLoginCount WHERE u.id = :userId")
+  @Query("UPDATE User u SET u.loginCount = :newLoginCount WHERE u.id = :userId")
   void updateLoginCount(@Param("userId") Long userId, @Param("newLoginCount") int newLoginCount);
   boolean existsByMobileNumber(String mobileNumber);
 
