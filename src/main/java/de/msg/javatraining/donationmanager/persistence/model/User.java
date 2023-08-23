@@ -47,7 +47,7 @@ public class User {
 	private boolean isActive;
 
 	@Column(name="logincount")
-	private int logincount;
+	private int loginCount;
 
 
 	@ManyToMany(fetch = FetchType.EAGER)
@@ -101,7 +101,7 @@ public class User {
 		this.email = email;
 		this.mobileNumber = mobileNumber;
 		this.isActive = isActive;
-		this.logincount = loginCount;
+		this.loginCount = loginCount;
 		this.roles = roles;
 //		this.campaigns = campaigns;
 //		this.donationListCreated = donationListCreated;
@@ -181,11 +181,11 @@ public class User {
 	}
 
 	public int getLoginCount() {
-		return logincount;
+		return loginCount;
 	}
 
 	public void setLoginCount(int loginCount) {
-		this.logincount = loginCount;
+		this.loginCount = loginCount;
 	}
 
 	public boolean isActive() {
