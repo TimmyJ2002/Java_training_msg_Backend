@@ -8,6 +8,8 @@ import de.msg.javatraining.donationmanager.persistence.repository.NotificationRe
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +22,7 @@ import static de.msg.javatraining.donationmanager.persistence.model.DTOs.Notific
 import static de.msg.javatraining.donationmanager.persistence.model.DTOs.NotificationMapper.mapNotificationToNotificationDTO;
 
 @Service
+@EnableScheduling
 public class NotificationService {
 
     @Autowired
@@ -57,7 +60,14 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-
+    @Scheduled(cron = "0 01 11 * * ?") //at midnight everyday
+    public void deleteOldNotifications() {
+        LocalDate thirtyDaysAgo = LocalDate.now().minusDays(30);
+        List<Notification> notificationsToDelete = notificationRepository.findByCreatedDateBefore(thirtyDaysAgo);
+        for (Notification notification : notificationsToDelete) {
+            notificationRepository.delete(notification);
+        }
+    }
 
     public String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
