@@ -31,7 +31,7 @@ public class Notification {
     private LocalDate createdDate;
 
     @Column(name="isRead")
-    private boolean isRead;
+    private Boolean isRead;
 
 
 
@@ -72,11 +72,11 @@ public class Notification {
         this.createdDate = createdDate;
     }
 
-    public boolean isRead() {
+    public Boolean getIsRead() {
         return isRead;
     }
 
-    public void setRead(boolean read) {
+    public void setRead(Boolean read) {
         isRead = read;
     }
 }

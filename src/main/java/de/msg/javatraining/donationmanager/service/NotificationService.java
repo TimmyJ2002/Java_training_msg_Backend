@@ -1,6 +1,7 @@
 package de.msg.javatraining.donationmanager.service;
 
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
+import de.msg.javatraining.donationmanager.exception.NotificationNotFoundException;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.NotificationDTO;
 import de.msg.javatraining.donationmanager.persistence.model.Notification;
 import de.msg.javatraining.donationmanager.persistence.model.User;
@@ -11,7 +12,6 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,4 +68,23 @@ public class NotificationService {
         return null;
     }
 
+    public Notification updateNotification(Long notificationId, Notification notification) throws NotificationNotFoundException{
+        Optional<Notification> notificationToFind = notificationRepository.findById(notificationId);
+        if (notificationToFind.isEmpty()) {
+            throw new NotificationNotFoundException("Notification with ID " + notificationId + " not found");
+        }
+        Notification notificationToEdit = notificationToFind.get();
+
+        notificationToEdit.setId(notificationToFind.get().getId());
+        if (notification.getTitle() != null) {
+            notificationToEdit.setTitle(notification.getTitle());
+        }
+        if (notification.getText() != null){
+            notificationToEdit.setText(notification.getText());
+        }
+        if (notification.getIsRead() != null){
+            notificationToEdit.setRead(notification.getIsRead());
+        }
+        return notificationRepository.save(notificationToEdit);
+    }
 }
