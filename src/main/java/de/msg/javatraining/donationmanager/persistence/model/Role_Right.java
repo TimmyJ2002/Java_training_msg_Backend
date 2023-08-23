@@ -16,6 +16,9 @@ public class Role_Right {
     @Column(length = 64)
     private ERight roleRight;
 
+    @Column(name = "role_id")
+    private Long roleId;
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -31,4 +34,5 @@ public class Role_Right {
     public void setRoleRight(ERight roleRight) {
         this.roleRight = roleRight;
     }
+
 }
