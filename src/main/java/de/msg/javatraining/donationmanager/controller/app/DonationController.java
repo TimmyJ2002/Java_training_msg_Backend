@@ -39,9 +39,7 @@ public class DonationController {
 
 
 @PutMapping("donations/approve/{donation_id}")
-public ResponseEntity<?> approveDonation(
-        @NonNull HttpServletRequest request,
-        @PathVariable(name = "donation_id") Long donationId) throws ChangeSetPersister.NotFoundException {
+public ResponseEntity<?> approveDonation(@NonNull HttpServletRequest request, @PathVariable(name = "donation_id") Long donationId) throws ChangeSetPersister.NotFoundException {
 
     donationService.approveDonation(request, donationId);
     return ResponseEntity.ok().build();

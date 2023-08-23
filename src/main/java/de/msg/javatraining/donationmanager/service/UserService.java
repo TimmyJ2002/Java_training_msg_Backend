@@ -49,17 +49,17 @@ public class UserService {
 
         //Username generation
         String generatedUsername = generateUniqueUsername(user.getFirstName(), user.getLastName());
-
         user.setUsername(generatedUsername);
 
         //Initial Password generation
-        String initialPassword = generateInitialPassword();
+       String initialPassword = generateInitialPassword();
+
+        //String initialPassword = "12345678910";
         user.setPassword(initialPassword);
-
-
         sendWelcomeEmail(user.getEmail(), initialPassword);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        //initial login count 0 & is_active status true
+
+        //initial login count -1 & is_active status true
         user.setLoginCount(-1);
         user.setActive(true);
 
@@ -111,7 +111,12 @@ public class UserService {
         String baseUsername = (lastName.substring(0, Math.min(5, lastName.length())) +
                 firstName.substring(0, 1)).toLowerCase();
 
-        int count = 1;
+
+        if (!userRepository.existsByUsername(baseUsername)) {
+            return baseUsername;
+        }
+
+        Integer count = 1;
         String username = baseUsername;
         username = baseUsername + count;
         while (userRepository.existsByUsername(username)) {
@@ -125,6 +130,7 @@ public class UserService {
 
 
     private boolean validateUserInput(UserDTO userDTO) {
+
         // Check if email is already existing
         boolean isEmailExisting = userRepository.existsByEmail(userDTO.getEmail());
         if (isEmailExisting) {
@@ -141,7 +147,7 @@ public class UserService {
         return true;
 
     }
-    //TODO: implement method
+
     private boolean checkPassword(Long userId, String password){
         return true;
     }

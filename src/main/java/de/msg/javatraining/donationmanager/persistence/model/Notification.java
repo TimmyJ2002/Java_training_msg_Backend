@@ -1,5 +1,7 @@
 package de.msg.javatraining.donationmanager.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -11,6 +13,8 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+
     @Column(name="text")
     private String text;
 
@@ -20,9 +24,19 @@ public class Notification {
     @Column(name="isRead")
     private boolean isRead;
 
-//    @ManyToOne(fetch=FetchType.LAZY)
-////    @JoinColumn(name="receiver_id")
-////    private User notificationReceiver;
+
+
+    @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="user_id")
+    @JsonIgnore
+    private User notificationReciever;
+    public User getNotificationReciever() {
+        return notificationReciever;
+    }
+
+    public void setNotificationReciever(User notificationReciever) {
+        this.notificationReciever = notificationReciever;
+    }
 
 
     public Long getId() {
