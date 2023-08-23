@@ -19,8 +19,10 @@ public class RoleRepositoryInterfaceImpl implements RoleRepositoryInterface {
     private EntityManager em;
 
     @Override
-    public void saveRole(Role r) {
-        em.persist(r);
+    public Role saveRole(Role r) {
+        em.merge(r);
+        em.flush();
+        return r;
     }
 
     @Override
@@ -39,12 +41,4 @@ public class RoleRepositoryInterfaceImpl implements RoleRepositoryInterface {
                 "SELECT r FROM Role r WHERE r.name = '" + name + "'", Role.class);
         return query.getSingleResult();
     }
-
-    @Override
-    public void updateRole(Role updatedRole) {
-        Role oldRole = em.find(Role.class, updatedRole.getId());
-        oldRole.setRights(updatedRole.getRights());
-    }
-
-
 }

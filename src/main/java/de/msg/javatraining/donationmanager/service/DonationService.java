@@ -65,10 +65,11 @@ public class DonationService {
         if (approvedByUser == null) throw new ChangeSetPersister.NotFoundException();
         Donation donation = findByID(Math.toIntExact(donationId));
 
-        if (Objects.equals(approvedByUser.getId(), donation.getCreatedBy().getId())){
-            throw new Exception("Donations can't be approved by the user who created them");
-        }
         if (donation != null) {
+            if (Objects.equals(approvedByUser.getId(), donation.getCreatedBy().getId())) {
+                throw new Exception("Donations can't be approved by the user who created them");
+            }
+
             donation.setApproved(true);
             donation.setApprovedBy(approvedByUser);
             donation.setApproveDate(LocalDate.now());
@@ -78,6 +79,7 @@ public class DonationService {
             throw new ChangeSetPersister.NotFoundException();
         }
     }
+
 
 
     public String parseJwt(HttpServletRequest request) {

@@ -26,12 +26,10 @@ public class Donation {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="campaign_id")
-    @JsonBackReference
     private Campaign campaign;
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="createdby_id")
-    @JsonBackReference
     private User createdBy;
 
     @Column(name="createdDate")
@@ -39,7 +37,6 @@ public class Donation {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="donator_id")
-    @JsonBackReference
     private Donator donator;
 
     @Column(name="approved")
@@ -47,7 +44,6 @@ public class Donation {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="approvedby_id")
-    @JsonBackReference
     private User approvedBy;
 
     @Column(name="approveDate")

@@ -22,44 +22,19 @@ public class RightController {
         return roleRightManagementService.findAllRoles();}
 
     @GetMapping("roles/rights")
-    public List<Role_Right> findAllRoleRights() {return roleRightManagementService.findAllRoleRights();}
-
-    @PostMapping("roles/addRight")
-    public void addRoleRight(@RequestBody RequestWrapper requestWrapper) {
-
-        Role_Right rr = new Role_Right();
-        rr.setRoleRight(requestWrapper.getRoleRight());
-        rr.setRole(roleRightManagementService.findByID(requestWrapper.getRoleID()));
-
-        roleRightManagementService.addRight(rr);
+    public List<Role_Right> findAllRoleRights() {
+        return roleRightManagementService.findAllRoleRights();
     }
+
 
     @PostMapping("roles/removeRight")
     public void removeRoleRight(@RequestBody RequestWrapper requestWrapper) {
         roleRightManagementService.removeRight(requestWrapper.getRoleID(), requestWrapper.getRoleRight());
     }
 
-    @PostMapping("roles/updateRight")
-    public void updateRoleRight(@RequestBody RequestWrapper requestWrapper) {
-        Role oldRole = roleRightManagementService.findByID(requestWrapper.getRoleID());
-        List<ERight> selectedRights = requestWrapper.getRights();
-        AtomicBoolean exists = new AtomicBoolean(false);
-        Role_Right rr = new Role_Right();
-        oldRole.getRights().forEach((right) -> {
-            if (!selectedRights.contains(right)) {
-                roleRightManagementService.removeRight(requestWrapper.getRoleID(), right.getRoleRight());
-            }
-        });
-        selectedRights.forEach((right) -> {
-            if (!oldRole.getRights().contains(right)) {
-
-                rr.setRoleRight(requestWrapper.getRoleRight());
-                rr.setRole(roleRightManagementService.findByID(requestWrapper.getRoleID()));
-
-                roleRightManagementService.addRight(rr);
-            }
-        });
-
+    @PutMapping("roles")
+    public Role updateRole(@RequestBody Role role) {
+        return roleRightManagementService.updateRole(role);
     }
 
 }

@@ -9,6 +9,9 @@ import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.RoleRepositoryInterfaceImpl;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +48,9 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @PersistenceContext
+    EntityManager entityManager;
+
 
     public User createUser(UserDTO userDTO) throws IllegalArgumentException{
         validateUserInput(userDTO);
@@ -54,17 +60,17 @@ public class UserService {
 
         //Username generation
         String generatedUsername = generateUniqueUsername(user.getFirstName(), user.getLastName());
-
         user.setUsername(generatedUsername);
 
         //Initial Password generation
-        String initialPassword = generateInitialPassword();
+       String initialPassword = generateInitialPassword();
+
+        //String initialPassword = "12345678910";
         user.setPassword(initialPassword);
-
-
         sendWelcomeEmail(user.getEmail(), initialPassword);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        //initial login count 0 & is_active status true
+
+        //initial login count -1 & is_active status true
         user.setLoginCount(-1);
         user.setActive(true);
 
@@ -116,7 +122,12 @@ public class UserService {
         String baseUsername = (lastName.substring(0, Math.min(5, lastName.length())) +
                 firstName.substring(0, 1)).toLowerCase();
 
-        int count = 1;
+
+        if (!userRepository.existsByUsername(baseUsername)) {
+            return baseUsername;
+        }
+
+        Integer count = 1;
         String username = baseUsername;
         username = baseUsername + count;
         while (userRepository.existsByUsername(username)) {
@@ -147,6 +158,10 @@ public class UserService {
 
     }
 
+    private boolean checkPassword(Long userId, String password){
+        return true;
+    }
+
 
     @Transactional
     public void changeUserPassword(Long userId, String newPassword) {
@@ -170,6 +185,16 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public void deactivateUser (Long userId, boolean status){
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setActive(status);
+            userRepository.save(user);
+        }
+    }
     public String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
 
@@ -221,6 +246,45 @@ public class UserService {
 
     }
 
+    public User updateUser2(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
+        Long id = user.getId(); // Assuming id is present in the User object
+
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isEmpty()) {
+            throw new UserNotFoundException("User with ID " + id + " not found");
+        }
+
+        User existing = existingUser.get();
+
+        if (user.getFirstName() != null && user.getFirstName().length() < 255) {
+            existing.setFirstName(user.getFirstName());
+        }
+        if (user.getLastName() != null && user.getLastName().length() < 255) {
+            existing.setLastName(user.getLastName());
+        }
+        if (user.getEmail() != null && user.getEmail().length() < 255) {
+            existing.setEmail(user.getEmail());
+        }
+        if (user.getMobileNumber() != null && user.getMobileNumber().length() < 255) {
+            existing.setMobileNumber(user.getMobileNumber());
+        }
+        if (user.getRoles() != null) {
+            existing.setRoles(user.getRoles());
+        }
+        if (user.getIsActive() != existing.isActive()) {
+            existing.setActive(user.getIsActive());
+        }
+
+
+        return userRepository.save(existing);
+    }
+
+
+
     private boolean validateUserInputForUpdate(Long id, UserWithIdDTO userWithIdDTO) {
         if (userWithIdDTO.getEmail() != null && !userWithIdDTO.getEmail().isEmpty()) {
             boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userWithIdDTO.getEmail(), id);
@@ -260,5 +324,6 @@ public class UserService {
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
 
 }

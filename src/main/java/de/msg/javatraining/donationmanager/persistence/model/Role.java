@@ -17,10 +17,9 @@ public class Role {
     private ERole name;
 
     @OneToMany(
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        mappedBy = "role",
-        fetch=FetchType.EAGER
+            cascade = { CascadeType.ALL },
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
     )
     private List<Role_Right> rights;
 
