@@ -17,6 +17,7 @@ import java.util.Locale;
 public class NotificationDTO {
 
     private Long id;
+    private String title;
     private String text;
     private LocalDate createdDate;
     private Boolean isRead;
