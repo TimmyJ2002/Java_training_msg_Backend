@@ -3,6 +3,8 @@ package de.msg.javatraining.donationmanager.controller.app;
 
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserDTO;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserWithIdDTO;
+import de.msg.javatraining.donationmanager.persistence.model.ERole;
+import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,12 @@ import java.util.List;
         }
 
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @GetMapping("/find_by_role/{role}")
+    public List<User> findUserByRole(@PathVariable(name = "role") Role role){
+
+        return userService.findAllUserByRoles(role);
     }
 
     @PutMapping("/update/{id}")

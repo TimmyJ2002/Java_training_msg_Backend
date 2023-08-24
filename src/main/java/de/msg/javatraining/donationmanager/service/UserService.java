@@ -1,31 +1,34 @@
 package de.msg.javatraining.donationmanager.service;
 
-import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
-import de.msg.javatraining.donationmanager.exception.*;
-import de.msg.javatraining.donationmanager.persistence.model.DTOs.*;
-import de.msg.javatraining.donationmanager.persistence.model.Donation;
+import de.msg.javatraining.donationmanager.exception.EmailAlreadyExistsException;
+import de.msg.javatraining.donationmanager.exception.MobileNumberAlreadyExistsException;
+import de.msg.javatraining.donationmanager.exception.UserNotFoundException;
+import de.msg.javatraining.donationmanager.persistence.model.DTOs.NotificationDTO;
+import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserDTO;
+import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserWithIdDTO;
+import de.msg.javatraining.donationmanager.persistence.model.ERole;
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.RoleRepositoryInterfaceImpl;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import de.msg.javatraining.donationmanager.persistence.model.ERole;
 import org.springframework.util.StringUtils;
 
-
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static de.msg.javatraining.donationmanager.persistence.model.DTOs.UserMapper.*;
@@ -50,6 +53,9 @@ public class UserService {
 
     @PersistenceContext
     EntityManager entityManager;
+
+    @Autowired
+    NotificationService notificationService;
 
 
     public User createUser(UserDTO userDTO) throws IllegalArgumentException{
@@ -316,6 +322,17 @@ public class UserService {
         }
         User user = userOptional.get();
         user.setActive(!user.getIsActive());
+
+        if(user.getIsActive() && user.getRoles().contains(ERole.ROLE_ADM)){
+            NotificationDTO notificationDTO = new NotificationDTO();
+
+            notificationDTO.setTitle("Account Deactivated");
+            notificationDTO.setText("Account was deactivated for user with ID: " + id);
+            notificationDTO.setCreatedDate(LocalDate.now());
+            notificationDTO.setRead(false);
+
+            notificationService.createNotification(notificationDTO, user.getUsername());
+        }
         userRepository.save(user);
 
         return mapUserToUserDTO(user);
@@ -325,5 +342,8 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    public List<User> findAllUserByRoles(Role role) {
+        return userRepository.findAllByRoles(role);
+    }
 
 }

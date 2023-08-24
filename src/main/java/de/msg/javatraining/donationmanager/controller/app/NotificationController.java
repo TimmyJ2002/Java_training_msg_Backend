@@ -26,9 +26,9 @@ public class NotificationController {
         return ResponseEntity.ok(notificationDTOS);
     }
 
-    @PostMapping("/save/{reciverId}")
-    public ResponseEntity<?> createNotification(@PathVariable(name = "reciverId") Long recieverId, NotificationDTO notificationDTO){
-        Notification notification = notificationService.createNotification(notificationDTO, recieverId);
+    @PostMapping("/save/{receiverUsername}")
+    public ResponseEntity<?> createNotification(@PathVariable(name = "receiverUsername") String receiverUsername, NotificationDTO notificationDTO){
+        Notification notification = notificationService.createNotification(notificationDTO, receiverUsername);
 
         return new ResponseEntity<>(notification, HttpStatus.CREATED);
 
