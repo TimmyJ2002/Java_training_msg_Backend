@@ -59,17 +59,6 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    public void createAccountDeactivatedNotification(String username) {
-        NotificationDTO notificationDTO = new NotificationDTO();
-
-        notificationDTO.setTitle("Account Deactivated");
-        notificationDTO.setText("Account was deactivated due to incorrect password entered 5 times");
-        notificationDTO.setCreatedDate(LocalDate.now());
-        notificationDTO.setIsRead(false);
-
-        this.createNotification(notificationDTO, username);
-
-    }
 
     @Scheduled(cron = "0 01 11 * * ?") //at midnight everyday
     public void deleteOldNotifications() {

@@ -2,6 +2,7 @@ package de.msg.javatraining.donationmanager.persistence.repository;
 
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +15,9 @@ import java.util.List;
 public interface UserRepositoryInterface extends JpaRepository<User, Long> {
   User findByUsername(String username);
 
-  List<User> findAllByRoles(Role role);
+//  @Transactional
+//  @Query("SELECT u FROM User u JOIN  r ON u.id = r.userId WHERE r.name = :roleName")
+//  List<User> findAllByRoles(String roleName);
 
   Boolean existsByUsername(String username);
 

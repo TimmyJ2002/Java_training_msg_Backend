@@ -11,6 +11,7 @@ import de.msg.javatraining.donationmanager.service.DonatorService;
 import de.msg.javatraining.donationmanager.service.UserService;
 import de.msg.javatraining.donationmanager.utils.DonationRequestWrapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -110,6 +111,13 @@ public class DonationController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Transactional
+    @PostMapping("/donations")
+    public void deleteDonation(@RequestParam String id){
+        Donation d = donationService.findByID(Long.parseLong(id));
+        donationService.deleteDonation(d);
     }
 
     private String parseJwt(HttpServletRequest request) {

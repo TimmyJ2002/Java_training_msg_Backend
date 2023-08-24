@@ -359,8 +359,5 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public List<User> findAllUserByRoles(Role role) {
-        return userRepository.findAllByRoles(role);
-    }
 
 }

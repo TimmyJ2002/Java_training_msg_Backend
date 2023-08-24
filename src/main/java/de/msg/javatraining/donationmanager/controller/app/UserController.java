@@ -45,12 +45,6 @@ import java.util.List;
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @GetMapping("/find_by_role/{role}")
-    public List<User> findUserByRole(@PathVariable(name = "role") Role role){
-
-        return userService.findAllUserByRoles(role);
-    }
-
     @PutMapping("/update/{id}")
     public User updateUser(@PathVariable("id") Long id, @RequestBody UserWithIdDTO updateUserDTO){
             return userService.updateUser(id, updateUserDTO);

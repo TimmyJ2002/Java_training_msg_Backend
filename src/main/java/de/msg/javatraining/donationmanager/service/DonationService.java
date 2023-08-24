@@ -1,15 +1,12 @@
 package de.msg.javatraining.donationmanager.service;
 
-import de.msg.javatraining.donationmanager.persistence.model.Campaign;
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
-import de.msg.javatraining.donationmanager.exception.DonationNotFoundException;
+import de.msg.javatraining.donationmanager.persistence.model.Campaign;
 import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Donator;
-import de.msg.javatraining.donationmanager.persistence.repository.DonationRepository;
-import jakarta.persistence.NoResultException;
 import de.msg.javatraining.donationmanager.persistence.model.User;
+import de.msg.javatraining.donationmanager.persistence.repository.DonationRepository;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
-import de.msg.javatraining.donationmanager.persistence.repository.impl.DonationRepositoryImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -41,7 +38,7 @@ public class DonationService {
         donationRepositoryInterface.saveDonation(donation);
     }
 
-    public void removeDonation(Donation donation) {
+    public void deleteDonation(Donation donation) {
         donationRepositoryInterface.deleteDonation(donation);
     }
 
@@ -54,6 +51,10 @@ public class DonationService {
     }
 
     public Donation findByID(int ID) {
+            return donationRepositoryInterface.findByID(ID);
+    }
+
+    public Donation findByID(long ID) {
             return donationRepositoryInterface.findByID(ID);
     }
 
