@@ -28,6 +28,7 @@ public class DonationRepositoryImpl implements DonationRepository {
 
     @Override
     public void deleteDonation(Donation donation) {
+        em.find(Donation.class, donation.getId());
         em.remove(donation);
     }
 

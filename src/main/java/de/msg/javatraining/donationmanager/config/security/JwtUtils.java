@@ -31,7 +31,6 @@ public class JwtUtils {
   }
 
   public String generateTokenUsernameRights(String username, User user) {
-
     List<ERight> rights = new ArrayList<ERight>();
     user.getRoles().forEach(role -> {
       role.getRights().forEach((roleRight -> {

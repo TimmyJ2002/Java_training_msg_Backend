@@ -38,7 +38,7 @@ public class DonationService {
         donationRepositoryInterface.saveDonation(donation);
     }
 
-    public void removeDonation(Donation donation) {
+    public void deleteDonation(Donation donation) {
         donationRepositoryInterface.deleteDonation(donation);
     }
 
@@ -51,6 +51,10 @@ public class DonationService {
     }
 
     public Donation findByID(int ID) {
+            return donationRepositoryInterface.findByID(ID);
+    }
+
+    public Donation findByID(long ID) {
             return donationRepositoryInterface.findByID(ID);
     }
 
