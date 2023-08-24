@@ -114,7 +114,7 @@ public class AuthController {
             notificationDTO.setTitle("Account Deactivated");
             notificationDTO.setText("Account was deactivated due to incorrect password entered 5 times for user: " + loginRequest.getUsername());
             notificationDTO.setCreatedDate(LocalDate.now());
-            notificationDTO.setRead(false);
+            notificationDTO.setIsRead(false);
 
             notificationService.createNotification(notificationDTO, u.getUsername());
             System.out.println("Notification created");
