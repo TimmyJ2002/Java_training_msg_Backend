@@ -4,7 +4,10 @@ package de.msg.javatraining.donationmanager.controller.auth;
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.exception.UserNotFoundException;
+import de.msg.javatraining.donationmanager.persistence.model.DTOs.NotificationDTO;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserWithIdDTO;
+import de.msg.javatraining.donationmanager.persistence.model.ERole;
+import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.repository.RoleRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.model.User;
@@ -26,6 +29,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -100,8 +105,21 @@ public class AuthController {
         user.setActive(false);
         userService.updateUser2(user);
         System.out.println("User deactivated");
-        notificationService.createAccountDeactivatedNotification(user.getUsername());
-        System.out.println("Notification created");
+        List<UserWithIdDTO> users = userService.getAllUsers();
+
+        for (UserWithIdDTO u : users){
+          if (u.getRoles().stream().anyMatch(role -> role.getName().equals(ERole.ROLE_ADM))){
+            NotificationDTO notificationDTO = new NotificationDTO();
+
+            notificationDTO.setTitle("Account Deactivated");
+            notificationDTO.setText("Account was deactivated due to incorrect password entered 5 times for user: " + loginRequest.getUsername());
+            notificationDTO.setCreatedDate(LocalDate.now());
+            notificationDTO.setRead(false);
+
+            notificationService.createNotification(notificationDTO, u.getUsername());
+            System.out.println("Notification created");
+          }
+        }
       }
 
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"An error occurred\"}");

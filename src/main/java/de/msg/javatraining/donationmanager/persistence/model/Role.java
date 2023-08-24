@@ -24,6 +24,7 @@ public class Role {
     @JoinColumn(name = "role_id")
     private List<Role_Right> rights;
 
+
     public Role() {
 
     }
