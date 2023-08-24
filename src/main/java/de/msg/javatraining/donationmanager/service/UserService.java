@@ -1,5 +1,6 @@
 package de.msg.javatraining.donationmanager.service;
 
+import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.exception.EmailAlreadyExistsException;
 import de.msg.javatraining.donationmanager.exception.MobileNumberAlreadyExistsException;
@@ -50,6 +51,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @PersistenceContext
     EntityManager entityManager;
@@ -237,7 +241,10 @@ public class UserService {
         }
     }
 
-    public User updateUser(Long id, UserWithIdDTO userWithIdDTO) throws IllegalArgumentException{
+    public User updateUser(HttpServletRequest request,Long id, UserWithIdDTO userWithIdDTO) throws IllegalArgumentException{
+        String jwt = parseJwt(request);
+        String userNameThatEdited = jwtUtils.getUserNameFromJwtToken(jwt);
+
         validateUserInputForUpdate(id, userWithIdDTO);
 
         Optional<User> existingUser = userRepository.findById(id);
@@ -265,8 +272,42 @@ public class UserService {
         if (userWithIdDTO.getActive() != null) {
             user.setActive(userWithIdDTO.getActive());
         }
+
+        //Notification part for both users
+        NotificationDTO notificationForEditedUser = new NotificationDTO();
+        notificationForEditedUser.setTitle("Account Updated");
+        notificationForEditedUser.setText("Your User Details we're changed by a User Manager! New credentials are: "
+                + user.getFirstName() + " " + user.getLastName() + " Email: " + user.getEmail() + "Roles" + getRoleNames(user.getRoles()));
+        notificationForEditedUser.setCreatedDate(LocalDate.now());
+        notificationForEditedUser.setIsRead(false);
+
+        notificationService.createNotification(notificationForEditedUser, user.getUsername());
+
+
+        NotificationDTO notificationForUserThatEdited = new NotificationDTO();
+        notificationForUserThatEdited.setTitle("You Updated An Account Succesfully!");
+        notificationForUserThatEdited.setText("You edited the user: " + user.getUsername() + ". Now the user is: "
+        +  user.getFirstName() + " " + user.getLastName() + " , Email: " + user.getEmail());
+        notificationForUserThatEdited.setCreatedDate(LocalDate.now());
+        notificationForUserThatEdited.setIsRead(false);
+
+        notificationService.createNotification(notificationForUserThatEdited, userNameThatEdited);
+        //
+
         return userRepository.save(user);
 
+    }
+
+    private String getRoleNames(List<Role> roles) {
+        StringBuilder roleNames = new StringBuilder();
+        for (Role role : roles) {
+            roleNames.append(role.getName()).append(", ");
+        }
+        // Remove the trailing comma and space
+        if (roleNames.length() > 0) {
+            roleNames.delete(roleNames.length() - 2, roleNames.length());
+        }
+        return roleNames.toString();
     }
 
     public User updateUser2(User user) {

@@ -7,6 +7,8 @@ import de.msg.javatraining.donationmanager.persistence.model.ERole;
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.service.UserService;
+import io.micrometer.common.lang.NonNull;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +48,8 @@ import java.util.List;
     }
 
     @PutMapping("/update/{id}")
-    public User updateUser(@PathVariable("id") Long id, @RequestBody UserWithIdDTO updateUserDTO){
-            return userService.updateUser(id, updateUserDTO);
+    public User updateUser(@NonNull HttpServletRequest request, @PathVariable("id") Long id, @RequestBody UserWithIdDTO updateUserDTO){
+            return userService.updateUser(request, id, updateUserDTO);
     }
 
 
