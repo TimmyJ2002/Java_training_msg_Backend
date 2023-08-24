@@ -21,6 +21,7 @@ public class Role {
             orphanRemoval = true,
             fetch = FetchType.EAGER
     )
+    @JoinColumn(name = "role_id")
     private List<Role_Right> rights;
 
     public Role() {
