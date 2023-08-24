@@ -277,7 +277,7 @@ public class UserService {
         NotificationDTO notificationForEditedUser = new NotificationDTO();
         notificationForEditedUser.setTitle("Account Updated");
         notificationForEditedUser.setText("Your User Details we're changed by a User Manager! New credentials are: "
-                + user.getFirstName() + " " + user.getLastName() + " Email: " + user.getEmail() + "Roles" + getRoleNames(user.getRoles()));
+                + user.getFirstName() + " " + user.getLastName() + " Email: " + user.getEmail() + " Roles that you have: " + getRoleNames(user.getRoles()));
         notificationForEditedUser.setCreatedDate(LocalDate.now());
         notificationForEditedUser.setIsRead(false);
 
