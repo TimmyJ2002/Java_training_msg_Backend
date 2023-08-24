@@ -59,7 +59,7 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    public void createAccountDeactivatedNotification(String username){
+    public void createAccountDeactivatedNotification(String username) {
         NotificationDTO notificationDTO = new NotificationDTO();
 
         notificationDTO.setTitle("Account Deactivated");
@@ -68,6 +68,7 @@ public class NotificationService {
         notificationDTO.setRead(false);
 
         this.createNotification(notificationDTO, username);
+    }
 
     @Scheduled(cron = "0 01 11 * * ?") //at midnight everyday
     public void deleteOldNotifications() {
