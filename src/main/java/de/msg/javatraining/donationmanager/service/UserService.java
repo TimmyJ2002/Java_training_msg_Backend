@@ -373,7 +373,7 @@ public class UserService {
        return userList.stream().map(user -> mapUserToUserWithIdDTO(user)).collect(Collectors.toList());
     }
 
-    public UserDTO activateDeactivateUser(Long id) {
+    public void activateDeactivateUser(Long id) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new UserNotFoundException("User with ID " + id + " not found");
@@ -381,7 +381,7 @@ public class UserService {
         User user = userOptional.get();
         user.setActive(!user.getIsActive());
 
-        if(user.getIsActive() && user.getRoles().contains(ERole.ROLE_ADM)){
+//        if(!user.getIsActive()){
             NotificationDTO notificationDTO = new NotificationDTO();
 
             notificationDTO.setTitle("Account Deactivated");
@@ -389,11 +389,18 @@ public class UserService {
             notificationDTO.setCreatedDate(LocalDate.now());
             notificationDTO.setIsRead(false);
 
-            notificationService.createNotification(notificationDTO, user.getUsername());
-        }
+            List<UserWithIdDTO> users = this.getAllUsers();
+
+            for (UserWithIdDTO u : users){
+                if (u.getRoles().stream().anyMatch(role -> role.getName().equals(ERole.ROLE_ADM))){
+                    notificationService.createNotification(notificationDTO, u.getUsername());
+                    System.out.println("Notification created");
+                }
+            }
+//        }
         userRepository.save(user);
 
-        return mapUserToUserDTO(user);
+        mapUserToUserDTO(user);
     }
 
     public User findUserByUsername(String username) {
