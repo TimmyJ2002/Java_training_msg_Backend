@@ -14,7 +14,6 @@ public class CampaignService {
 
     @Autowired
     CampaignRepositoryImpl campaignRepository;
-    CampaignConverter campaignConverter;
 
     public List<Campaign> findAll() {
         List<Campaign> campaigns = campaignRepository.findAll();
