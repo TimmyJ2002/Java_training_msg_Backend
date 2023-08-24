@@ -32,17 +32,15 @@ public class NotificationService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @Autowired
-    private UserService userService;
+//    @Autowired
+//    private UserService userService;
 
     public List<NotificationDTO>  getNotificationsByUserId(HttpServletRequest request) throws ChangeSetPersister.NotFoundException {
         String jwt = parseJwt(request);
         String userName = jwtUtils.getUserNameFromJwtToken(jwt);
 
-        User recipicentUser = userService.findUserByUsername(userName);
-
         // BEFORE || After getting user |>
-        List<Notification> notifications = notificationRepository.findByNotificationRecieverId(recipicentUser.getId());
+        List<Notification> notifications = notificationRepository.findByNotificationReceiverUsername(userName);
 
 //        LocalDate hardcodedDate = LocalDate.of(2023, 8, 22);
 //        NotificationDTO test = new NotificationDTO(30, "TEST", hardcodedDate, false);
@@ -53,13 +51,23 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
-    public Notification createNotification(NotificationDTO notificationDTO, Long recieverId) {
+    public Notification createNotification(NotificationDTO notificationDTO, String username) {
 
         Notification notification = mapNotificationDTOToNotification(notificationDTO);
-        notification.setNotificationReciever(userService.findById(recieverId));
+        notification.setNotificationReceiverUsername(username);
 
         return notificationRepository.save(notification);
     }
+
+    public void createAccountDeactivatedNotification(String username){
+        NotificationDTO notificationDTO = new NotificationDTO();
+
+        notificationDTO.setTitle("Account Deactivated");
+        notificationDTO.setText("Account was deactivated due to incorrect password entered 5 times");
+        notificationDTO.setCreatedDate(LocalDate.now());
+        notificationDTO.setRead(false);
+
+        this.createNotification(notificationDTO, username);
 
     @Scheduled(cron = "0 01 11 * * ?") //at midnight everyday
     public void deleteOldNotifications() {

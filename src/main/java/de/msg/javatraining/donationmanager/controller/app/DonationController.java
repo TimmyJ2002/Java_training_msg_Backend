@@ -10,28 +10,16 @@ import de.msg.javatraining.donationmanager.service.DonationService;
 import de.msg.javatraining.donationmanager.service.DonatorService;
 import de.msg.javatraining.donationmanager.service.UserService;
 import de.msg.javatraining.donationmanager.utils.DonationRequestWrapper;
-import jakarta.persistence.NoResultException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 public class DonationController {

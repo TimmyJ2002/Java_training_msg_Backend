@@ -33,20 +33,16 @@ public class Notification {
     @Column(name="isRead")
     private Boolean isRead;
 
+    @Column(name = "username")
+    private String notificationReceiverUsername;
 
-
-    @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="user_id")
-    @JsonIgnore
-    private User notificationReciever;
-    public User getNotificationReciever() {
-        return notificationReciever;
+    public String getNotificationReceiverUsername() {
+        return notificationReceiverUsername;
     }
 
-    public void setNotificationReciever(User notificationReciever) {
-        this.notificationReciever = notificationReciever;
+    public void setNotificationReceiverUsername(String notificationReceiverUsername) {
+        this.notificationReceiverUsername = notificationReceiverUsername;
     }
-
 
     public Long getId() {
         return id;

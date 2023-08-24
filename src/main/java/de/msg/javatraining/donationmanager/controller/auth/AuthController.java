@@ -8,6 +8,7 @@ import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserWithIdDTO;
 import de.msg.javatraining.donationmanager.persistence.repository.RoleRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.model.User;
+import de.msg.javatraining.donationmanager.service.NotificationService;
 import de.msg.javatraining.donationmanager.service.UserDetailsImpl;
 import de.msg.javatraining.donationmanager.service.UserService;
 import io.micrometer.common.lang.NonNull;
@@ -55,6 +56,9 @@ public class AuthController {
   @Autowired
   WebSecurityConfig webSecurityConfig;
 
+  @Autowired
+  NotificationService notificationService;
+
   private int loginCounter = 0;
 
   @PostMapping("/login")
@@ -96,9 +100,11 @@ public class AuthController {
         user.setActive(false);
         userService.updateUser2(user);
         System.out.println("User deactivated");
+        notificationService.createAccountDeactivatedNotification(user.getUsername());
+        System.out.println("Notification created");
       }
 
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"An error occurred\"}");
     }
   }
 
@@ -119,7 +125,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"User not found\"}");
       }
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"An error occurred\"}");
     }
   }
 
@@ -140,7 +146,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"User not found\"}");
       }
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"An error occurred\"}");
     }
   }
 
