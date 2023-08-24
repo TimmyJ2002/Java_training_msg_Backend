@@ -11,7 +11,7 @@ import java.util.List;
 public interface NotificationRepositoryInterface extends JpaRepository<Notification,Long> {
 
     List<Notification> findByNotificationReceiverUsername(String username);
-    List<Notification> findByNotificationRecieverId(Long userId);
+//    List<Notification> findByNotificationRecieverId(Long userId);
 
     List<Notification> findByCreatedDateBefore(LocalDate thirtyDaysAgo);
 }

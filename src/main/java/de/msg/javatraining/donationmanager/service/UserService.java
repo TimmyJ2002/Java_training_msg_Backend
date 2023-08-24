@@ -83,6 +83,23 @@ public class UserService {
         List<Role> roles = processRoles(userDTO.getRoles());
         user.setRoles(roles);
 
+
+            NotificationDTO notificationDTO = new NotificationDTO();
+
+            notificationDTO.setTitle("Welcome to Donation Manager!");
+            notificationDTO.setText(user.getFirstName()+ "!\n" +
+                    "Your new account is all set up and ready for you to explore." +
+                    "Best regards,\n" +
+                    "The Team 4"
+            );
+            notificationDTO.setCreatedDate(LocalDate.now());
+            notificationDTO.setIsRead(false);
+
+            notificationService.createNotification(notificationDTO, user.getUsername());
+
+
+
+
         return userRepository.save(user);
     }
 
@@ -329,7 +346,7 @@ public class UserService {
             notificationDTO.setTitle("Account Deactivated");
             notificationDTO.setText("Account was deactivated for user with ID: " + id);
             notificationDTO.setCreatedDate(LocalDate.now());
-            notificationDTO.setRead(false);
+            notificationDTO.setIsRead(false);
 
             notificationService.createNotification(notificationDTO, user.getUsername());
         }
