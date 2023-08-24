@@ -113,11 +113,9 @@ public class DonationController {
         }
     }
 
-    @Transactional
     @PostMapping("/donations")
     public void deleteDonation(@RequestParam String id){
-        Donation d = donationService.findByID(Long.parseLong(id));
-        donationService.deleteDonation(d);
+        donationService.deleteDonation(Long.parseLong(id));
     }
 
     private String parseJwt(HttpServletRequest request) {

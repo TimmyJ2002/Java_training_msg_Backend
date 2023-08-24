@@ -38,8 +38,8 @@ public class DonationService {
         donationRepositoryInterface.saveDonation(donation);
     }
 
-    public void deleteDonation(Donation donation) {
-        donationRepositoryInterface.deleteDonation(donation);
+    public void deleteDonation(long id) {
+        donationRepositoryInterface.deleteDonation(id);
     }
 
     public List<Donation> findAll() {

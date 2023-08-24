@@ -5,10 +5,7 @@ import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Donator;
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.repository.DonationRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -27,9 +24,11 @@ public class DonationRepositoryImpl implements DonationRepository {
     }
 
     @Override
-    public void deleteDonation(Donation donation) {
-        em.find(Donation.class, donation.getId());
-        em.remove(donation);
+    public void deleteDonation(long id) {
+        Donation d = (em.find(Donation.class, id));
+        Query q = em.createNativeQuery("Delete from donation where id=?", Donation.class);
+        q.setParameter(1,d.getId());
+        q.executeUpdate();
     }
 
     @Override
