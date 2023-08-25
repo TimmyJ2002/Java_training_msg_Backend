@@ -78,6 +78,10 @@ public class AuthController {
 
       User user = userService.findUserByUsername(userDetails.getUsername());
 
+      if (!user.getIsActive()){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Account is inactive\"}");
+      }
+
       List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
               .collect(Collectors.toList());
 

@@ -53,6 +53,7 @@ public class DonationService {
         donationRepositoryInterface.updateDonation(oldDonationID, amount, currency, campaign, donator, notes);
     }
 
+
     public Donation findByID(int ID) {
             return donationRepositoryInterface.findByID(ID);
     }
@@ -70,10 +71,7 @@ public class DonationService {
                 throw new Exception("Donations can't be approved by the user who created them");
             }
 
-            donation.setApproved(true);
-            donation.setApprovedBy(approvedByUser);
-            donation.setApproveDate(LocalDate.now());
-            donationRepositoryInterface.saveDonation(donation);
+            donationRepositoryInterface.approveDonation(donation.getId());
         } else {
             // Handle case where the donation is not found
             throw new ChangeSetPersister.NotFoundException();
