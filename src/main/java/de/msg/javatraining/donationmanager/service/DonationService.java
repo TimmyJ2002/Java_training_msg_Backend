@@ -57,10 +57,6 @@ public class DonationService {
             return donationRepositoryInterface.findByID(ID);
     }
 
-    public Donation findByID(long ID) {
-            return donationRepositoryInterface.findByID(ID);
-    }
-
     public void approveDonation(HttpServletRequest request, Long donationId) throws Exception {
         String jwt = parseJwt(request);
         String username = jwtUtils.getUserNameFromJwtToken(jwt);

@@ -31,22 +31,22 @@ public class RoleRightManagementService {
         roleRightRepo.deleteRoleRight(roleID, right);
     }
 
-    public Role findByID(int roleID) {
-        switch(roleID) {
-            case 1:
-                return roleRepo.findByName(ROLE_ADM);
-            case 2:
-                return roleRepo.findByName(ROLE_MGN);
-            case 3:
-                return roleRepo.findByName(ROLE_CEN);
-            default:
-                return roleRepo.findByName(ROLE_REP);
-        }
-    }
-
-    public Role_Right findRoleRightByRoleAndRight(Role role, ERight right) {
-        return roleRightRepo.findByRoleAndRight(role, right);
-    }
+//    public Role findByID(int roleID) {
+//        switch(roleID) {
+//            case 1:
+//                return roleRepo.findByName(ROLE_ADM);
+//            case 2:
+//                return roleRepo.findByName(ROLE_MGN);
+//            case 3:
+//                return roleRepo.findByName(ROLE_CEN);
+//            default:
+//                return roleRepo.findByName(ROLE_REP);
+//        }
+//    }
+//
+//    public Role_Right findRoleRightByRoleAndRight(Role role, ERight right) {
+//        return roleRightRepo.findByRoleAndRight(role, right);
+//    }
 
     public List<Role> findAllRoles() {
         return roleRepo.findAll();
