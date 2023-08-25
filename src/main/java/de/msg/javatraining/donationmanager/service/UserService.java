@@ -272,28 +272,31 @@ public class UserService {
         if (userWithIdDTO.getActive() != null) {
             user.setActive(userWithIdDTO.getActive());
         }
+//        if ( existingUser.get().getFirstName() != userWithIdDTO.getFirstName() &&
+//                existingUser.get().getLastName() != userWithIdDTO.getLastName() &&
+//                existingUser.get().getEmail() != userWithIdDTO.getEmail() &&
+//                existingUser.get().getMobileNumber() != userWithIdDTO.getMobileNumber()) {
+            //Notification part for both users
+            NotificationDTO notificationForEditedUser = new NotificationDTO();
+            notificationForEditedUser.setTitle("Account Updated");
+            notificationForEditedUser.setText("Your User Details we're changed by a User Manager! New credentials are: "
+                    + user.getFirstName() + " " + user.getLastName() + " Email: " + user.getEmail() + " Roles that you have: " + getRoleNames(user.getRoles()));
+            notificationForEditedUser.setCreatedDate(LocalDate.now());
+            notificationForEditedUser.setIsRead(false);
 
-        //Notification part for both users
-        NotificationDTO notificationForEditedUser = new NotificationDTO();
-        notificationForEditedUser.setTitle("Account Updated");
-        notificationForEditedUser.setText("Your User Details we're changed by a User Manager! New credentials are: "
-                + user.getFirstName() + " " + user.getLastName() + " Email: " + user.getEmail() + " Roles that you have: " + getRoleNames(user.getRoles()));
-        notificationForEditedUser.setCreatedDate(LocalDate.now());
-        notificationForEditedUser.setIsRead(false);
-
-        notificationService.createNotification(notificationForEditedUser, user.getUsername());
+            notificationService.createNotification(notificationForEditedUser, user.getUsername());
 
 
-        NotificationDTO notificationForUserThatEdited = new NotificationDTO();
-        notificationForUserThatEdited.setTitle("You Updated An Account Succesfully!");
-        notificationForUserThatEdited.setText("You edited the user: " + user.getUsername() + ". Now the user is: "
-        +  user.getFirstName() + " " + user.getLastName() + " , Email: " + user.getEmail());
-        notificationForUserThatEdited.setCreatedDate(LocalDate.now());
-        notificationForUserThatEdited.setIsRead(false);
+            NotificationDTO notificationForUserThatEdited = new NotificationDTO();
+            notificationForUserThatEdited.setTitle("You Updated An Account Succesfully!");
+            notificationForUserThatEdited.setText("You edited the user: " + user.getUsername() + ". Now the user is: "
+                    + user.getFirstName() + " " + user.getLastName() + " , Email: " + user.getEmail());
+            notificationForUserThatEdited.setCreatedDate(LocalDate.now());
+            notificationForUserThatEdited.setIsRead(false);
 
-        notificationService.createNotification(notificationForUserThatEdited, userNameThatEdited);
-        //
+            notificationService.createNotification(notificationForUserThatEdited, userNameThatEdited);
 
+        //}
         return userRepository.save(user);
 
     }
