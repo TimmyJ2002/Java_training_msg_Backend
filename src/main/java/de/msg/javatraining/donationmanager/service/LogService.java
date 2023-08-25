@@ -12,12 +12,13 @@ public class LogService {
     @Autowired
     LogRepository logRepository;
 
-    public Log createLog(String action, String severity, String message) {
+    public Log create(Log log) {
         Log logEntry = new Log();
-        logEntry.setAction(action);
-        logEntry.setSeverity(severity);
-        logEntry.setMessage(message);
+        logEntry.setAction(log.getAction());
+        logEntry.setSeverity(log.getSeverity());
+        logEntry.setMessage(log.getMessage());
         logRepository.save(logEntry);
         return logEntry;
     }
+
 }

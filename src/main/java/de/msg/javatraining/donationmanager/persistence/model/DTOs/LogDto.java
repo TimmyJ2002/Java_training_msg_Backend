@@ -9,6 +9,9 @@ public class LogDto {
     private String severity;
     private String message;
 
+    public LogDto() {
+    }
+
     public LogDto(Long id, String action, String severity, String message) {
         this.id = id;
         this.action = action;
