@@ -13,13 +13,16 @@ import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.RoleRepositoryInterfaceImpl;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,8 +49,7 @@ public class UserService {
     @Autowired
     private RoleRepositoryInterfaceImpl roleRepositoryInterface;
 
-    @Autowired
-    private JavaMailSender javaMailSender;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -55,14 +57,14 @@ public class UserService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @PersistenceContext
-    EntityManager entityManager;
 
     @Autowired
     NotificationService notificationService;
+    @Autowired
+    private EmailService emailService;
 
 
-    public User createUser(UserDTO userDTO) throws IllegalArgumentException{
+    public User createUser(UserDTO userDTO) throws IllegalArgumentException {
         validateUserInput(userDTO);
 
         //Converts userDto to user
@@ -73,11 +75,11 @@ public class UserService {
         user.setUsername(generatedUsername);
 
         //Initial Password generation
-       String initialPassword = generateInitialPassword();
+        String initialPassword = generateInitialPassword();
 
         //String initialPassword = "12345678910";
         user.setPassword(initialPassword);
-        sendWelcomeEmail(user.getEmail(), initialPassword);
+        emailService.sendWelcomeEmail(user.getEmail(), initialPassword);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         //initial login count -1 & is_active status true
@@ -88,36 +90,23 @@ public class UserService {
         user.setRoles(roles);
 
 
-            NotificationDTO notificationDTO = new NotificationDTO();
+        NotificationDTO notificationDTO = new NotificationDTO();
 
-            notificationDTO.setTitle("Welcome to Donation Manager!");
-            notificationDTO.setText(user.getFirstName()+ "!\n" +
-                    "Your new account is all set up and ready for you to explore." +
-                    "Best regards,\n" +
-                    "The Team 4"
-            );
-            notificationDTO.setCreatedDate(LocalDate.now());
-            notificationDTO.setIsRead(false);
+        notificationDTO.setTitle("Welcome to Donation Manager!");
+        notificationDTO.setText(user.getFirstName() + "!\n" +
+                "Your new account is all set up and ready for you to explore." +
+                "Best regards,\n" +
+                "The Team 4"
+        );
+        notificationDTO.setCreatedDate(LocalDate.now());
+        notificationDTO.setIsRead(false);
 
-            notificationService.createNotification(notificationDTO, user.getUsername());
-
-
+        notificationService.createNotification(notificationDTO, user.getUsername());
 
 
         return userRepository.save(user);
     }
 
-    private void sendWelcomeEmail(String email, String initialPassword) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(email);
-        mailMessage.setSubject("Welcome to Donation Manager");
-        mailMessage.setText("Welcome to our Donation Manager MSG! Your initial password is: " + initialPassword + "\n Your password will need to be changed at the initial Login.");
-        try {
-            javaMailSender.send(mailMessage);
-        }catch (MailException e){
-            System.err.println("Error sending email:" + e);
-        }
-    }
 
 
     // inside methods
@@ -140,7 +129,7 @@ public class UserService {
 
     private String generateInitialPassword() {
         UUID uuid = UUID.randomUUID();
-        String initialPassword = uuid.toString().replace("-","").substring(0,10); // For 10 character long Password
+        String initialPassword = uuid.toString().replace("-", "").substring(0, 10); // For 10 character long Password
 
         return initialPassword;
     }
@@ -166,7 +155,6 @@ public class UserService {
     }
 
 
-
     private boolean validateUserInput(UserDTO userDTO) {
         // Check if email is already existing
         boolean isEmailExisting = userRepository.existsByEmail(userDTO.getEmail());
@@ -180,12 +168,15 @@ public class UserService {
             throw new MobileNumberAlreadyExistsException("Mobile number already exists in the database");
         }
 
+        if (userDTO.getFirstName() == null || userDTO.getLastName() == null) {
+            throw new NullPointerException();
+        }
         // All checks passed
         return true;
 
     }
 
-    private boolean checkPassword(Long userId, String password){
+    private boolean checkPassword(Long userId, String password) {
         return true;
     }
 
@@ -213,7 +204,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deactivateUser (Long userId, boolean status){
+    public void deactivateUser(Long userId, boolean status) {
         Optional<User> optionalUser = userRepository.findById(userId);
 
         if (optionalUser.isPresent()) {
@@ -222,6 +213,7 @@ public class UserService {
             userRepository.save(user);
         }
     }
+
     public String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
 
@@ -241,7 +233,7 @@ public class UserService {
         }
     }
 
-    public User updateUser(HttpServletRequest request,Long id, UserWithIdDTO userWithIdDTO) throws IllegalArgumentException{
+    public User updateUser(HttpServletRequest request, Long id, UserWithIdDTO userWithIdDTO) throws IllegalArgumentException {
         String jwt = parseJwt(request);
         String userNameThatEdited = jwtUtils.getUserNameFromJwtToken(jwt);
 
@@ -276,25 +268,25 @@ public class UserService {
 //                existingUser.get().getLastName() != userWithIdDTO.getLastName() &&
 //                existingUser.get().getEmail() != userWithIdDTO.getEmail() &&
 //                existingUser.get().getMobileNumber() != userWithIdDTO.getMobileNumber()) {
-            //Notification part for both users
-            NotificationDTO notificationForEditedUser = new NotificationDTO();
-            notificationForEditedUser.setTitle("Account Updated");
-            notificationForEditedUser.setText("Your User Details we're changed by a User Manager! New credentials are: "
-                    + user.getFirstName() + " " + user.getLastName() + " Email: " + user.getEmail() + " Roles that you have: " + getRoleNames(user.getRoles()));
-            notificationForEditedUser.setCreatedDate(LocalDate.now());
-            notificationForEditedUser.setIsRead(false);
+        //Notification part for both users
+        NotificationDTO notificationForEditedUser = new NotificationDTO();
+        notificationForEditedUser.setTitle("Account Updated");
+        notificationForEditedUser.setText("Your User Details we're changed by a User Manager! New credentials are: "
+                + user.getFirstName() + " " + user.getLastName() + " Email: " + user.getEmail() + " Roles that you have: " + getRoleNames(user.getRoles()));
+        notificationForEditedUser.setCreatedDate(LocalDate.now());
+        notificationForEditedUser.setIsRead(false);
 
-            notificationService.createNotification(notificationForEditedUser, user.getUsername());
+        notificationService.createNotification(notificationForEditedUser, user.getUsername());
 
 
-            NotificationDTO notificationForUserThatEdited = new NotificationDTO();
-            notificationForUserThatEdited.setTitle("You Updated An Account Succesfully!");
-            notificationForUserThatEdited.setText("You edited the user: " + user.getUsername() + ". Now the user is: "
-                    + user.getFirstName() + " " + user.getLastName() + " , Email: " + user.getEmail());
-            notificationForUserThatEdited.setCreatedDate(LocalDate.now());
-            notificationForUserThatEdited.setIsRead(false);
+        NotificationDTO notificationForUserThatEdited = new NotificationDTO();
+        notificationForUserThatEdited.setTitle("You Updated An Account Succesfully!");
+        notificationForUserThatEdited.setText("You edited the user to: " + user.getFirstName() + " " + user.getLastName()
+                + " Email: " + user.getEmail() + " Roles that you have set: " + getRoleNames(user.getRoles()));
+        notificationForUserThatEdited.setCreatedDate(LocalDate.now());
+        notificationForUserThatEdited.setIsRead(false);
 
-            notificationService.createNotification(notificationForUserThatEdited, userNameThatEdited);
+        notificationService.createNotification(notificationForUserThatEdited, userNameThatEdited);
 
         //}
         return userRepository.save(user);
@@ -351,7 +343,6 @@ public class UserService {
     }
 
 
-
     private boolean validateUserInputForUpdate(Long id, UserWithIdDTO userWithIdDTO) {
         if (userWithIdDTO.getEmail() != null && !userWithIdDTO.getEmail().isEmpty()) {
             boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userWithIdDTO.getEmail(), id);
@@ -372,8 +363,8 @@ public class UserService {
     }
 
     public List<UserWithIdDTO> getAllUsers() {
-       List<User> userList = userRepository.findAll();
-       return userList.stream().map(user -> mapUserToUserWithIdDTO(user)).collect(Collectors.toList());
+        List<User> userList = userRepository.findAll();
+        return userList.stream().map(user -> mapUserToUserWithIdDTO(user)).collect(Collectors.toList());
     }
 
     public void activateDeactivateUser(Long id) {
@@ -385,21 +376,21 @@ public class UserService {
         user.setActive(!user.getIsActive());
 
 //        if(!user.getIsActive()){
-            NotificationDTO notificationDTO = new NotificationDTO();
+        NotificationDTO notificationDTO = new NotificationDTO();
 
-            notificationDTO.setTitle("Account Deactivated");
-            notificationDTO.setText("Account was deactivated for user with ID: " + id);
-            notificationDTO.setCreatedDate(LocalDate.now());
-            notificationDTO.setIsRead(false);
+        notificationDTO.setTitle("Account Deactivated");
+        notificationDTO.setText("Account was deactivated for user with ID: " + id);
+        notificationDTO.setCreatedDate(LocalDate.now());
+        notificationDTO.setIsRead(false);
 
-            List<UserWithIdDTO> users = this.getAllUsers();
+        List<UserWithIdDTO> users = this.getAllUsers();
 
-            for (UserWithIdDTO u : users){
-                if (u.getRoles().stream().anyMatch(role -> role.getName().equals(ERole.ROLE_ADM))){
-                    notificationService.createNotification(notificationDTO, u.getUsername());
-                    System.out.println("Notification created");
-                }
+        for (UserWithIdDTO u : users) {
+            if (u.getRoles().stream().anyMatch(role -> role.getName().equals(ERole.ROLE_ADM))) {
+                notificationService.createNotification(notificationDTO, u.getUsername());
+                System.out.println("Notification created");
             }
+        }
 //        }
         userRepository.save(user);
 
