@@ -72,4 +72,10 @@ public class Campaign {
     public void setDonationList(List<Donation> donationList) {
         this.donationList = donationList;
     }
+
+    public Campaign(Long id, @NonNull String purpose, @NonNull String name) {
+        this.id = id;
+        this.purpose = purpose;
+        this.name = name;
+    }
 }

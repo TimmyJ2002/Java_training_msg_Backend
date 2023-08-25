@@ -60,4 +60,13 @@ public class DonationRepositoryImpl implements DonationRepository {
         }
     }
 
+    @Override
+    public void approveDonation(Long donationId) {
+        Donation donation = findByID(donationId);
+        donation.setApproved(true);
+
+        em.persist(donation);
+    }
+
+
 }

@@ -78,24 +78,27 @@ public class AuthController {
 
       User user = userService.findUserByUsername(userDetails.getUsername());
 
-      if (userDetails.getLoginCount() == -1) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("{\"message\": \"Password change required\"}");
+      if (!user.getIsActive()){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Account is inactive\"}");
       }
-
-
-    System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
-    String jwt = jwtUtils.generateJwtToken(userDetails, user);
-
-      System.out.println("Token:" + jwt);
 
       List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
               .collect(Collectors.toList());
 
-      loginCounter = 0;
+      if (userDetails.getLoginCount() == -1) {
+        String jwt = jwtUtils.generateJwtToken(userDetails, user);
+        return ResponseEntity.ok(new SignInResponse(jwt, userDetails.getId(),
+                userDetails.getUsername(), userDetails.getEmail(), userDetails.getLoginCount(), roles));
+      }
+      else {
+        System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
+        String jwt = jwtUtils.generateJwtToken(userDetails, user);
 
-      return ResponseEntity.ok(new SignInResponse(jwt, userDetails.getId(),
-              userDetails.getUsername(), userDetails.getEmail(), userDetails.getLoginCount(), roles));
+        loginCounter = 0;
+
+        return ResponseEntity.ok(new SignInResponse(jwt, userDetails.getId(),
+                userDetails.getUsername(), userDetails.getEmail(), userDetails.getLoginCount(), roles));
+      }
     }
     catch (Exception e){
       loginCounter++;
