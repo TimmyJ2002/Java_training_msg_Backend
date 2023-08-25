@@ -1,5 +1,6 @@
 package de.msg.javatraining.donationmanager.service;
 
+import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.exception.EmailAlreadyExistsException;
 import de.msg.javatraining.donationmanager.exception.MobileNumberAlreadyExistsException;
@@ -51,6 +52,9 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @PersistenceContext
     EntityManager entityManager;
 
@@ -82,6 +86,23 @@ public class UserService {
 
         List<Role> roles = processRoles(userDTO.getRoles());
         user.setRoles(roles);
+
+
+            NotificationDTO notificationDTO = new NotificationDTO();
+
+            notificationDTO.setTitle("Welcome to Donation Manager!");
+            notificationDTO.setText(user.getFirstName()+ "!\n" +
+                    "Your new account is all set up and ready for you to explore." +
+                    "Best regards,\n" +
+                    "The Team 4"
+            );
+            notificationDTO.setCreatedDate(LocalDate.now());
+            notificationDTO.setIsRead(false);
+
+            notificationService.createNotification(notificationDTO, user.getUsername());
+
+
+
 
         return userRepository.save(user);
     }
@@ -220,7 +241,10 @@ public class UserService {
         }
     }
 
-    public User updateUser(Long id, UserWithIdDTO userWithIdDTO) throws IllegalArgumentException{
+    public User updateUser(HttpServletRequest request,Long id, UserWithIdDTO userWithIdDTO) throws IllegalArgumentException{
+        String jwt = parseJwt(request);
+        String userNameThatEdited = jwtUtils.getUserNameFromJwtToken(jwt);
+
         validateUserInputForUpdate(id, userWithIdDTO);
 
         Optional<User> existingUser = userRepository.findById(id);
@@ -248,8 +272,45 @@ public class UserService {
         if (userWithIdDTO.getActive() != null) {
             user.setActive(userWithIdDTO.getActive());
         }
+//        if ( existingUser.get().getFirstName() != userWithIdDTO.getFirstName() &&
+//                existingUser.get().getLastName() != userWithIdDTO.getLastName() &&
+//                existingUser.get().getEmail() != userWithIdDTO.getEmail() &&
+//                existingUser.get().getMobileNumber() != userWithIdDTO.getMobileNumber()) {
+            //Notification part for both users
+            NotificationDTO notificationForEditedUser = new NotificationDTO();
+            notificationForEditedUser.setTitle("Account Updated");
+            notificationForEditedUser.setText("Your User Details we're changed by a User Manager! New credentials are: "
+                    + user.getFirstName() + " " + user.getLastName() + " Email: " + user.getEmail() + " Roles that you have: " + getRoleNames(user.getRoles()));
+            notificationForEditedUser.setCreatedDate(LocalDate.now());
+            notificationForEditedUser.setIsRead(false);
+
+            notificationService.createNotification(notificationForEditedUser, user.getUsername());
+
+
+            NotificationDTO notificationForUserThatEdited = new NotificationDTO();
+            notificationForUserThatEdited.setTitle("You Updated An Account Succesfully!");
+            notificationForUserThatEdited.setText("You edited the user: " + user.getUsername() + ". Now the user is: "
+                    + user.getFirstName() + " " + user.getLastName() + " , Email: " + user.getEmail());
+            notificationForUserThatEdited.setCreatedDate(LocalDate.now());
+            notificationForUserThatEdited.setIsRead(false);
+
+            notificationService.createNotification(notificationForUserThatEdited, userNameThatEdited);
+
+        //}
         return userRepository.save(user);
 
+    }
+
+    private String getRoleNames(List<Role> roles) {
+        StringBuilder roleNames = new StringBuilder();
+        for (Role role : roles) {
+            roleNames.append(role.getName()).append(", ");
+        }
+        // Remove the trailing comma and space
+        if (roleNames.length() > 0) {
+            roleNames.delete(roleNames.length() - 2, roleNames.length());
+        }
+        return roleNames.toString();
     }
 
     public User updateUser2(User user) {
@@ -315,7 +376,7 @@ public class UserService {
        return userList.stream().map(user -> mapUserToUserWithIdDTO(user)).collect(Collectors.toList());
     }
 
-    public UserDTO activateDeactivateUser(Long id) {
+    public void activateDeactivateUser(Long id) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new UserNotFoundException("User with ID " + id + " not found");
@@ -323,27 +384,31 @@ public class UserService {
         User user = userOptional.get();
         user.setActive(!user.getIsActive());
 
-        if(user.getIsActive() && user.getRoles().contains(ERole.ROLE_ADM)){
+//        if(!user.getIsActive()){
             NotificationDTO notificationDTO = new NotificationDTO();
 
             notificationDTO.setTitle("Account Deactivated");
             notificationDTO.setText("Account was deactivated for user with ID: " + id);
             notificationDTO.setCreatedDate(LocalDate.now());
-            notificationDTO.setRead(false);
+            notificationDTO.setIsRead(false);
 
-            notificationService.createNotification(notificationDTO, user.getUsername());
-        }
+            List<UserWithIdDTO> users = this.getAllUsers();
+
+            for (UserWithIdDTO u : users){
+                if (u.getRoles().stream().anyMatch(role -> role.getName().equals(ERole.ROLE_ADM))){
+                    notificationService.createNotification(notificationDTO, u.getUsername());
+                    System.out.println("Notification created");
+                }
+            }
+//        }
         userRepository.save(user);
 
-        return mapUserToUserDTO(user);
+        mapUserToUserDTO(user);
     }
 
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    public List<User> findAllUserByRoles(Role role) {
-        return userRepository.findAllByRoles(role);
-    }
 
 }

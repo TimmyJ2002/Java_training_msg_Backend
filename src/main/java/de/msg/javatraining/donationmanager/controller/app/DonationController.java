@@ -1,16 +1,13 @@
 package de.msg.javatraining.donationmanager.controller.app;
 
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
-import de.msg.javatraining.donationmanager.persistence.model.Campaign;
-import de.msg.javatraining.donationmanager.persistence.model.Donation;
-import de.msg.javatraining.donationmanager.persistence.model.Donator;
-import de.msg.javatraining.donationmanager.persistence.model.User;
-import de.msg.javatraining.donationmanager.service.CampaignService;
-import de.msg.javatraining.donationmanager.service.DonationService;
-import de.msg.javatraining.donationmanager.service.DonatorService;
-import de.msg.javatraining.donationmanager.service.UserService;
+import de.msg.javatraining.donationmanager.persistence.model.*;
+import de.msg.javatraining.donationmanager.persistence.model.DTOs.NotificationDTO;
+import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserWithIdDTO;
+import de.msg.javatraining.donationmanager.service.*;
 import de.msg.javatraining.donationmanager.utils.DonationRequestWrapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +36,9 @@ public class DonationController {
     @Autowired
     CampaignService campaignService;
 
+    @Autowired
+    NotificationService notificationService;
+
     @GetMapping("donations")
     public List<Donation> findAllDonations() {
         return donationService.findAll();
@@ -51,6 +51,23 @@ public class DonationController {
             @PathVariable(name = "donation_id") Long donationId) throws Exception {
 
         donationService.approveDonation(request, donationId);
+
+        List<UserWithIdDTO> users = userService.getAllUsers();
+
+        for (UserWithIdDTO u : users){
+            if (u.getRoles().stream().anyMatch(role ->
+                    role.getName().equals(ERole.ROLE_MGN) || role.getName().equals(ERole.ROLE_CEN))){
+                NotificationDTO notificationDTO = new NotificationDTO();
+
+                notificationDTO.setTitle("Donation Approved");
+                notificationDTO.setText("Donation with id: " + donationId + "was approved");
+                notificationDTO.setCreatedDate(LocalDate.now());
+                notificationDTO.setIsRead(false);
+
+                notificationService.createNotification(notificationDTO, u.getUsername());
+                System.out.println("Notification created");
+            }
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -110,6 +127,11 @@ public class DonationController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping("/donations")
+    public void deleteDonation(@RequestParam String id){
+        donationService.deleteDonation(Long.parseLong(id));
     }
 
     private String parseJwt(HttpServletRequest request) {

@@ -6,6 +6,7 @@ import de.msg.javatraining.donationmanager.persistence.model.Donation;
 import de.msg.javatraining.donationmanager.persistence.model.Donator;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.DonationRepository;
+import de.msg.javatraining.donationmanager.persistence.repository.DonationRepositoryJPA;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class DonationService {
     @Autowired
     UserService userService;
 
+    @Autowired
+    DonationRepositoryJPA donationRepositoryJPA;
 
 
     @Autowired
@@ -38,8 +41,8 @@ public class DonationService {
         donationRepositoryInterface.saveDonation(donation);
     }
 
-    public void removeDonation(Donation donation) {
-        donationRepositoryInterface.deleteDonation(donation);
+    public void deleteDonation(long id) {
+        donationRepositoryInterface.deleteDonation(id);
     }
 
     public List<Donation> findAll() {
@@ -51,6 +54,10 @@ public class DonationService {
     }
 
     public Donation findByID(int ID) {
+            return donationRepositoryInterface.findByID(ID);
+    }
+
+    public Donation findByID(long ID) {
             return donationRepositoryInterface.findByID(ID);
     }
 

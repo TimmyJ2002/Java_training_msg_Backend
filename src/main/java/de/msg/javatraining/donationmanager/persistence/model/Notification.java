@@ -40,6 +40,7 @@ public class Notification {
         return notificationReceiverUsername;
     }
 
+
     public void setNotificationReceiverUsername(String notificationReceiverUsername) {
         this.notificationReceiverUsername = notificationReceiverUsername;
     }
