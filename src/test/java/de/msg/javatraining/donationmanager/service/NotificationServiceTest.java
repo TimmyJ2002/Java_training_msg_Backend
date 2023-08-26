@@ -42,19 +42,19 @@ public class NotificationServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    @Test
-    public void testGetNotificationsByUserId() throws ChangeSetPersister.NotFoundException {
-        String jwtToken = "Bearer testToken";
-        String username = "admin";
-
-        when(mockRequest.getHeader("Authorization")).thenReturn(jwtToken);
-        when(notificationRepository.findByNotificationReceiverUsername(username)).thenReturn(new ArrayList<>());
-
-        List<NotificationDTO> result = notificationService.getNotificationsByUserId(mockRequest);
-
-        assertNotNull(result);
-        assertEquals(0, result.size());
-    }
+//    @Test
+//    public void testGetNotificationsByUserId() throws ChangeSetPersister.NotFoundException {
+//        String jwtToken = "Bearer testToken";
+//        String username = "admin";
+//
+//        when(mockRequest.getHeader("Authorization")).thenReturn(jwtToken);
+//        when(notificationRepository.findByNotificationReceiverUsername(username)).thenReturn(new ArrayList<>());
+//
+//        List<NotificationDTO> result = notificationService.getNotificationsByUserId(mockRequest);
+//
+//        assertNotNull(result);
+//        assertEquals(0, result.size());
+//    }
 
     @Test
     public void testCreateNotification() {

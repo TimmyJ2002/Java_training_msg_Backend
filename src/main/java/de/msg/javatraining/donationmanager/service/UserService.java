@@ -11,6 +11,7 @@ import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserWithIdDTO;
 import de.msg.javatraining.donationmanager.persistence.model.ERole;
 import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
+import de.msg.javatraining.donationmanager.persistence.repository.RoleRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.impl.RoleRepositoryInterfaceImpl;
 import jakarta.mail.Message;
@@ -50,9 +51,8 @@ public class UserService {
     private RoleRepositoryInterfaceImpl roleRepositoryInterface;
 
 
-
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    public PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -60,8 +60,11 @@ public class UserService {
 
     @Autowired
     NotificationService notificationService;
+
     @Autowired
     private EmailService emailService;
+
+
 
 
     public User createUser(UserDTO userDTO) throws IllegalArgumentException {
@@ -110,7 +113,7 @@ public class UserService {
 
 
     // inside methods
-    private List<Role> processRoles(String[] roleNames) {
+    public List<Role> processRoles(String[] roleNames) {
         List<Role> roles = new ArrayList<>();
         for (String roleName : roleNames) {
             try {
@@ -127,7 +130,7 @@ public class UserService {
     }
 
 
-    private String generateInitialPassword() {
+    public String generateInitialPassword() {
         UUID uuid = UUID.randomUUID();
         String initialPassword = uuid.toString().replace("-", "").substring(0, 10); // For 10 character long Password
 
@@ -155,7 +158,7 @@ public class UserService {
     }
 
 
-    private boolean validateUserInput(UserDTO userDTO) {
+    public boolean validateUserInput(UserDTO userDTO) {
         // Check if email is already existing
         boolean isEmailExisting = userRepository.existsByEmail(userDTO.getEmail());
         if (isEmailExisting) {
@@ -175,11 +178,6 @@ public class UserService {
         return true;
 
     }
-
-    private boolean checkPassword(Long userId, String password) {
-        return true;
-    }
-
 
     @Transactional
     public void changeUserPassword(Long userId, String newPassword) {
@@ -343,7 +341,7 @@ public class UserService {
     }
 
 
-    private boolean validateUserInputForUpdate(Long id, UserWithIdDTO userWithIdDTO) {
+    public boolean validateUserInputForUpdate(Long id, UserWithIdDTO userWithIdDTO) {
         if (userWithIdDTO.getEmail() != null && !userWithIdDTO.getEmail().isEmpty()) {
             boolean isEmailExisting = userRepository.existsByEmailAndIdNot(userWithIdDTO.getEmail(), id);
             if (isEmailExisting) {
