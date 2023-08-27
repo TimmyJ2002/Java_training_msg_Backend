@@ -1,6 +1,7 @@
 package de.msg.javatraining.donationmanager.service;
 
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
+import de.msg.javatraining.donationmanager.exception.NotificationNotFoundException;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.NotificationDTO;
 import de.msg.javatraining.donationmanager.persistence.model.Notification;
 import de.msg.javatraining.donationmanager.persistence.model.User;
@@ -8,6 +9,8 @@ import de.msg.javatraining.donationmanager.persistence.repository.NotificationRe
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +23,7 @@ import static de.msg.javatraining.donationmanager.persistence.model.DTOs.Notific
 import static de.msg.javatraining.donationmanager.persistence.model.DTOs.NotificationMapper.mapNotificationToNotificationDTO;
 
 @Service
+@EnableScheduling
 public class NotificationService {
 
     @Autowired
@@ -28,17 +32,15 @@ public class NotificationService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @Autowired
-    private UserService userService;
+//    @Autowired
+//    private UserService userService;
 
     public List<NotificationDTO>  getNotificationsByUserId(HttpServletRequest request) throws ChangeSetPersister.NotFoundException {
         String jwt = parseJwt(request);
         String userName = jwtUtils.getUserNameFromJwtToken(jwt);
 
-        User recipicentUser = userService.findUserByUsername(userName);
-
         // BEFORE || After getting user |>
-        List<Notification> notifications = notificationRepository.findByNotificationRecieverId(recipicentUser.getId());
+        List<Notification> notifications = notificationRepository.findByNotificationReceiverUsername(userName);
 
 //        LocalDate hardcodedDate = LocalDate.of(2023, 8, 22);
 //        NotificationDTO test = new NotificationDTO(30, "TEST", hardcodedDate, false);
@@ -49,15 +51,23 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
-    public Notification createNotification(NotificationDTO notificationDTO, Long recieverId) {
+    public Notification createNotification(NotificationDTO notificationDTO, String username) {
 
         Notification notification = mapNotificationDTOToNotification(notificationDTO);
-        notification.setNotificationReciever(userService.findById(recieverId));
+        notification.setNotificationReceiverUsername(username);
 
         return notificationRepository.save(notification);
     }
 
 
+    @Scheduled(cron = "0 01 11 * * ?") //at midnight everyday
+    public void deleteOldNotifications() {
+        LocalDate thirtyDaysAgo = LocalDate.now().minusDays(30);
+        List<Notification> notificationsToDelete = notificationRepository.findByCreatedDateBefore(thirtyDaysAgo);
+        for (Notification notification : notificationsToDelete) {
+            notificationRepository.delete(notification);
+        }
+    }
 
     public String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
@@ -68,4 +78,23 @@ public class NotificationService {
         return null;
     }
 
+    public Notification updateNotification(Long notificationId, Notification notification) throws NotificationNotFoundException{
+        Optional<Notification> notificationToFind = notificationRepository.findById(notificationId);
+        if (notificationToFind.isEmpty()) {
+            throw new NotificationNotFoundException("Notification with ID " + notificationId + " not found");
+        }
+        Notification notificationToEdit = notificationToFind.get();
+
+        notificationToEdit.setId(notificationToFind.get().getId());
+        if (notification.getTitle() != null) {
+            notificationToEdit.setTitle(notification.getTitle());
+        }
+        if (notification.getText() != null){
+            notificationToEdit.setText(notification.getText());
+        }
+        if (notification.getIsRead() != null){
+            notificationToEdit.setRead(notification.getIsRead());
+        }
+        return notificationRepository.save(notificationToEdit);
+    }
 }

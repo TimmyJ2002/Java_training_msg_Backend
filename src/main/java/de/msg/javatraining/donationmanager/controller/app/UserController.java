@@ -3,8 +3,12 @@ package de.msg.javatraining.donationmanager.controller.app;
 
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserDTO;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserWithIdDTO;
+import de.msg.javatraining.donationmanager.persistence.model.ERole;
+import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.service.UserService;
+import io.micrometer.common.lang.NonNull;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +36,18 @@ import java.util.List;
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
+    @GetMapping("find_by_username/{username}")
+    public ResponseEntity<User> findUserById(@PathVariable(name = "username") String username){
+        User user = userService.findUserByUsername(username);
+
+        if (user == null) {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // User not found
+        }
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
     @GetMapping("/find_by_id/{id}")
     public ResponseEntity<User> findUserById(@PathVariable(name = "id") Long id){
         User user = userService.findById(id);
@@ -44,8 +60,8 @@ import java.util.List;
     }
 
     @PutMapping("/update/{id}")
-    public User updateUser(@PathVariable("id") Long id, @RequestBody UserWithIdDTO updateUserDTO){
-            return userService.updateUser(id, updateUserDTO);
+    public User updateUser(@NonNull HttpServletRequest request, @PathVariable("id") Long id, @RequestBody UserWithIdDTO updateUserDTO){
+            return userService.updateUser(request, id, updateUserDTO);
     }
 
 

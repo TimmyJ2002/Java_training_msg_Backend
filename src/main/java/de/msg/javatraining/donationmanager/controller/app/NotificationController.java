@@ -1,5 +1,6 @@
 package de.msg.javatraining.donationmanager.controller.app;
 
+import de.msg.javatraining.donationmanager.exception.NotificationNotFoundException;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.NotificationDTO;
 import de.msg.javatraining.donationmanager.persistence.model.Notification;
 import de.msg.javatraining.donationmanager.service.NotificationService;
@@ -8,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,11 +26,16 @@ public class NotificationController {
         return ResponseEntity.ok(notificationDTOS);
     }
 
-    @PostMapping("/save/{reciverId}")
-    public ResponseEntity<?> createNotification(@PathVariable(name = "reciverId") Long recieverId, NotificationDTO notificationDTO){
-        Notification notification = notificationService.createNotification(notificationDTO, recieverId);
+    @PostMapping("/save/{receiverUsername}")
+    public ResponseEntity<?> createNotification(@PathVariable(name = "receiverUsername") String receiverUsername, NotificationDTO notificationDTO){
+        Notification notification = notificationService.createNotification(notificationDTO, receiverUsername);
 
         return new ResponseEntity<>(notification, HttpStatus.CREATED);
 
+    }
+
+    @PutMapping("/update/{id}")
+    public Notification updateNotification(@PathVariable("id") Long notificationId,@RequestBody Notification notification) throws NotificationNotFoundException {
+        return notificationService.updateNotification(notificationId, notification);
     }
 }

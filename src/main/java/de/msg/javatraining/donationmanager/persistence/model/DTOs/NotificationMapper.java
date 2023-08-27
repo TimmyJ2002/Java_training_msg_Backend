@@ -31,7 +31,7 @@ public class NotificationMapper {
         notificationDTO.setTitle(notification.getTitle());
         notificationDTO.setText(notification.getText());
         notificationDTO.setCreatedDate(notification.getCreatedDate());
-        notificationDTO.setIsRead(notification.isRead());
+        notificationDTO.setIsRead(notification.getIsRead());
 
 
         return notificationDTO;

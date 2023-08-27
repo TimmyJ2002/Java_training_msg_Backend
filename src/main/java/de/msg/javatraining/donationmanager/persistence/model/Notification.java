@@ -31,22 +31,19 @@ public class Notification {
     private LocalDate createdDate;
 
     @Column(name="isRead")
-    private boolean isRead;
+    private Boolean isRead;
 
+    @Column(name = "username")
+    private String notificationReceiverUsername;
 
-
-    @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="user_id")
-    @JsonIgnore
-    private User notificationReciever;
-    public User getNotificationReciever() {
-        return notificationReciever;
+    public String getNotificationReceiverUsername() {
+        return notificationReceiverUsername;
     }
 
-    public void setNotificationReciever(User notificationReciever) {
-        this.notificationReciever = notificationReciever;
-    }
 
+    public void setNotificationReceiverUsername(String notificationReceiverUsername) {
+        this.notificationReceiverUsername = notificationReceiverUsername;
+    }
 
     public Long getId() {
         return id;
@@ -72,11 +69,11 @@ public class Notification {
         this.createdDate = createdDate;
     }
 
-    public boolean isRead() {
+    public Boolean getIsRead() {
         return isRead;
     }
 
-    public void setRead(boolean read) {
+    public void setRead(Boolean read) {
         isRead = read;
     }
 }

@@ -4,10 +4,14 @@ package de.msg.javatraining.donationmanager.controller.auth;
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.config.security.WebSecurityConfig;
 import de.msg.javatraining.donationmanager.exception.UserNotFoundException;
+import de.msg.javatraining.donationmanager.persistence.model.DTOs.NotificationDTO;
 import de.msg.javatraining.donationmanager.persistence.model.DTOs.UserWithIdDTO;
+import de.msg.javatraining.donationmanager.persistence.model.ERole;
+import de.msg.javatraining.donationmanager.persistence.model.Role;
 import de.msg.javatraining.donationmanager.persistence.repository.RoleRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
 import de.msg.javatraining.donationmanager.persistence.model.User;
+import de.msg.javatraining.donationmanager.service.NotificationService;
 import de.msg.javatraining.donationmanager.service.UserDetailsImpl;
 import de.msg.javatraining.donationmanager.service.UserService;
 import io.micrometer.common.lang.NonNull;
@@ -25,6 +29,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,6 +61,9 @@ public class AuthController {
   @Autowired
   WebSecurityConfig webSecurityConfig;
 
+  @Autowired
+  NotificationService notificationService;
+
   private int loginCounter = 0;
 
   @PostMapping("/login")
@@ -69,22 +78,27 @@ public class AuthController {
 
       User user = userService.findUserByUsername(userDetails.getUsername());
 
-      if (userDetails.getLoginCount() == -1) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("{\"message\": \"Password change required\"}");
+      if (!user.getIsActive()){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Account is inactive\"}");
       }
-
-
-    System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
-    String jwt = jwtUtils.generateJwtToken(userDetails, user);
-
-      System.out.println("Token:" + jwt);
 
       List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
               .collect(Collectors.toList());
 
-      return ResponseEntity.ok(new SignInResponse(jwt, userDetails.getId(),
-              userDetails.getUsername(), userDetails.getEmail(), userDetails.getLoginCount(), roles));
+      if (userDetails.getLoginCount() == -1) {
+        String jwt = jwtUtils.generateJwtToken(userDetails, user);
+        return ResponseEntity.ok(new SignInResponse(jwt, userDetails.getId(),
+                userDetails.getUsername(), userDetails.getEmail(), userDetails.getLoginCount(), roles));
+      }
+      else {
+        System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
+        String jwt = jwtUtils.generateJwtToken(userDetails, user);
+
+        loginCounter = 0;
+
+        return ResponseEntity.ok(new SignInResponse(jwt, userDetails.getId(),
+                userDetails.getUsername(), userDetails.getEmail(), userDetails.getLoginCount(), roles));
+      }
     }
     catch (Exception e){
       loginCounter++;
@@ -96,9 +110,24 @@ public class AuthController {
         user.setActive(false);
         userService.updateUser2(user);
         System.out.println("User deactivated");
+        List<UserWithIdDTO> users = userService.getAllUsers();
+
+        for (UserWithIdDTO u : users){
+          if (u.getRoles().stream().anyMatch(role -> role.getName().equals(ERole.ROLE_ADM))){
+            NotificationDTO notificationDTO = new NotificationDTO();
+
+            notificationDTO.setTitle("Account Deactivated");
+            notificationDTO.setText("Account was deactivated due to incorrect password entered 5 times for user: " + loginRequest.getUsername());
+            notificationDTO.setCreatedDate(LocalDate.now());
+            notificationDTO.setIsRead(false);
+
+            notificationService.createNotification(notificationDTO, u.getUsername());
+            System.out.println("Notification created");
+          }
+        }
       }
 
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"An error occurred\"}");
     }
   }
 
@@ -119,7 +148,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"User not found\"}");
       }
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"An error occurred\"}");
     }
   }
 
@@ -140,7 +169,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"User not found\"}");
       }
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"An error occurred\"}");
     }
   }
 
