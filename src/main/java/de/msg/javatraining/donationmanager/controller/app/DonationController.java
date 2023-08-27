@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -39,6 +40,9 @@ public class DonationController {
     @Autowired
     NotificationService notificationService;
 
+    @Autowired
+    LogService logService;
+
     @GetMapping("donations")
     public List<Donation> findAllDonations() {
         return donationService.findAll();
@@ -54,6 +58,9 @@ public class DonationController {
 
         List<UserWithIdDTO> users = userService.getAllUsers();
 
+        String jwt = parseJwt(request);
+        String username = jwtUtils.getUserNameFromJwtToken(jwt);
+
         for (UserWithIdDTO u : users){
             if (u.getRoles().stream().anyMatch(role ->
                     role.getName().equals(ERole.ROLE_MGN) || role.getName().equals(ERole.ROLE_CEN))){
@@ -64,6 +71,7 @@ public class DonationController {
                 notificationDTO.setCreatedDate(LocalDate.now());
                 notificationDTO.setIsRead(false);
 
+                logService.create("approve", "info", "Donation approved", username, LocalDateTime.now());
                 notificationService.createNotification(notificationDTO, u.getUsername());
                 System.out.println("Notification created");
             }
@@ -73,11 +81,9 @@ public class DonationController {
 
     @PostMapping("donations/addDonation")
     public ResponseEntity<?> addDonation(@NonNull HttpServletRequest request, @RequestBody DonationRequestWrapper donationRequestWrapper) {
-
+        String jwt = parseJwt(request);
+        String username = jwtUtils.getUserNameFromJwtToken(jwt);
         try {
-            String jwt = parseJwt(request);
-            String username = jwtUtils.getUserNameFromJwtToken(jwt);
-
             Donation donation = new Donation();
             donation.setAmount(donationRequestWrapper.getAmount());
             donation.setCurrency(donationRequestWrapper.getCurrency());
@@ -96,6 +102,8 @@ public class DonationController {
             donation.setNotes(donationRequestWrapper.getNotes());
             donationService.addDonation(donation);
 
+            logService.create("create", "info", "Donation created", username, LocalDateTime.now());
+
             return new ResponseEntity<>(HttpStatus.OK);
 
         } catch (IllegalArgumentException e) {
@@ -104,8 +112,9 @@ public class DonationController {
     }
 
     @PostMapping("donations/updateDonation")
-    public ResponseEntity<?> updateDonation(@RequestBody DonationRequestWrapper donationRequestWrapper) {
-
+    public ResponseEntity<?> updateDonation(@NonNull HttpServletRequest request, @RequestBody DonationRequestWrapper donationRequestWrapper) {
+        String jwt = parseJwt(request);
+        String username = jwtUtils.getUserNameFromJwtToken(jwt);
         try {
 
             Campaign campaign = campaignService.findById((long) donationRequestWrapper.getCampaignID());
@@ -123,6 +132,7 @@ public class DonationController {
                     campaign,
                     donator,
                     donationRequestWrapper.getNotes());
+            logService.create("modify", "info", "Donation modified", username, LocalDateTime.now());
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -130,7 +140,10 @@ public class DonationController {
     }
 
     @PostMapping("/donations")
-    public void deleteDonation(@RequestParam String id){
+    public void deleteDonation(@NonNull HttpServletRequest request, @RequestParam String id){
+        String jwt = parseJwt(request);
+        String username = jwtUtils.getUserNameFromJwtToken(jwt);
+        logService.create("delete", "info", "Donation deleted", username, LocalDateTime.now());
         donationService.deleteDonation(Long.parseLong(id));
     }
 
