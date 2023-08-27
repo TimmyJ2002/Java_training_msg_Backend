@@ -49,6 +49,18 @@ import java.util.List;
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
+    @GetMapping("find_by_username/{username}")
+    public ResponseEntity<User> findUserById(@PathVariable(name = "username") String username){
+        User user = userService.findUserByUsername(username);
+
+        if (user == null) {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // User not found
+        }
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
     @GetMapping("/find_by_id/{id}")
     public ResponseEntity<User> findUserById(@PathVariable(name = "id") Long id){
         User user = userService.findById(id);
