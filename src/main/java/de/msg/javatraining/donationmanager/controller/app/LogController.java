@@ -22,15 +22,15 @@ public class LogController {
     @Autowired
     private LogConverter logConverter;
 
-    @PostMapping("/log/create")
-    @ResponseBody
-    public ResponseEntity<?> createLog(@RequestBody LogDto logRequest) {
-        try {
-            Log createdLog = logService.create(logConverter.dtoToLog(logRequest));
-            return new ResponseEntity<>(createdLog, HttpStatus.OK);
-        }
-        catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Could not be added.", HttpStatus.BAD_REQUEST);
-        }
-    }
+//    @PostMapping("/log/create")
+//    @ResponseBody
+//    public ResponseEntity<?> createLog(@RequestBody LogDto logRequest) {
+//        try {
+//            Log createdLog = logService.create(logConverter.dtoToLog(logRequest));
+//            return new ResponseEntity<>(createdLog, HttpStatus.OK);
+//        }
+//        catch (IllegalArgumentException e) {
+//            return new ResponseEntity<>("Could not be added.", HttpStatus.BAD_REQUEST);
+//        }
+//    }
 }

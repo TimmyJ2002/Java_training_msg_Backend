@@ -3,6 +3,8 @@ package de.msg.javatraining.donationmanager.persistence.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name="log")
 public class Log {
@@ -19,6 +21,12 @@ public class Log {
 
     @Column(name = "message")
     private String message;
+
+    @Column(name= "username")
+    private String username;
+
+    @Column(name = "time")
+    private LocalDateTime time;
 
     public Log() {
     }
@@ -53,5 +61,21 @@ public class Log {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time;
     }
 }
