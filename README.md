@@ -12,3 +12,4 @@ Capacitatea de a crea și distribui rapoarte financiare detaliate, pentru o tran
 Cu DonationManager, ne mândrim să oferim o soluție completă și adaptabilă, menită să aducă îmbunătățiri semnificative pentru organizația dumneavoastră.
 
 MySql ca as DB, at the training ran on docker. 
+FrontEnd Application: Java_training_msg_Frontend
